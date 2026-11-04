@@ -1,6 +1,6 @@
 # 演示说明
 
-v0.2 将离线流程、模型构建、只加载检查、实际求解与中断恢复分开演示。**最小导热板已在本机构建并保存为空解；smoke、安全参数检查、几何/网格参数阻断及错误标签阻断已实测通过。真实求解等待用户签署，尚无完整成功记录。** 最新状态见[验证记录](validation-status.md)。
+v0.2 将离线流程、模型构建、只加载检查、实际求解与中断恢复分开演示。**最小导热板已通过用户两份 Ed25519 签名验真，完成本机真实求解及 PNG／表格导出；前置加载检查与运行合计 69.625253 秒，不含人工输入等待。** 该结果验证单场示例的执行链；真实中断恢复和完整工程验证仍未完成。最新状态见[验证记录](validation-status.md)。
 
 ## A：无需 COMSOL 的离线体验
 
@@ -36,9 +36,17 @@ python -m unittest discover -s tests -v
 | 网格 | FreeTri，最大尺寸 L/12，最小尺寸 L/120 |
 | 基准 | 解析平均温度 298.15 K；接受区间 [298.149, 298.151] K |
 | 输出 | case_no=1、Tmean_K；可选 temperature.png 与 global-results.csv |
-| 时间 | 2 核、300 秒超时；实际运行是否小于 5 分钟须由日志证明 |
+| 时间 | 2 核、300 秒超时；本机前置 smoke 32.711377 秒，运行阶段 36.913876 秒，合计 69.625253 秒，不含人工输入 |
 
 按示例 README 编译并运行 `BuildHeatPlate.java`。它只构建几何、材料、网格和输出节点，保存未求解 MPH；不会调用求解器。2026-11-04 本机构建用时 34.620 秒，网格 192 单元、最小质量 0.7222，保存后 `sol1.isEmpty=true`。这些数字不属于求解证据。
+
+随后用户在受信终端完成工程假设和求解签名。真实计算的平均温度为 **298.1500000000019 K**，解析值 298.15 K，绝对误差 **1.9326762412674725 × 10⁻¹² K**，通过 0.001 K 阈值。已保存本次原始日志、完成 token、两份签名收据、指标 CSV、含单位表格、1600 × 1000 PNG 和新 MPH。
+
+![本机COMSOL导出的导热板温度场](../assets/minimal-heat-plate-temperature.png)
+
+*实际温度场：左侧 293.15 K、右侧 303.15 K；由本机 COMSOL 6.3.0.290 导出。该单场演示不代表多物理场模型通过验证。*
+
+公开数据：[metrics.csv](../examples/minimal-heat-plate/verified-results/metrics.csv) · [含单位表格](../examples/minimal-heat-plate/verified-results/global-results.csv)。耗时包括各阶段编译和批处理，不包括用户审阅／输入等待，也不包含此前一次性构建。网格独立性、守恒和实验验证尚未完成。
 
 将 MPH 和案例配置放在私有目录，修正 `model.path`。下述示意路径需按本机修改：
 
@@ -81,7 +89,9 @@ python -m comsol_workflow approve runs/heat-plate-001 --stage assumptions --priv
 python -m comsol_workflow approve runs/heat-plate-001 --stage solve --private-key 'X:\operator-only\approval-private.pem' --public-key trust/approval-public.pem --assumptions approvals/heat-plate-assumptions.json --out approvals/heat-plate-solve.json
 ```
 
-命令要求交互确认动作和计划摘要，再解锁用户私钥。执行器核验 Ed25519 签名、计划指纹、阶段、时间顺序及上游假设收据。手填 `approved:true` 或修改签名 JSON 不再有效。输入或执行代码变化后必须重新计划与签名。
+创建密钥时两次输入口令只是创建并确认密钥口令，**不等于完成审批签署**。每次 `approve` 还需依次填写姓名／操作者标识、`Decision note`（审阅说明），输入终端当前显示的完整 `APPROVE` 短语，再输入创建密钥时的原口令。工程假设与求解两个阶段各签一次。口令输入没有回显是正常行为，不要把口令发到聊天中。
+
+执行器核验 Ed25519 签名、计划指纹、阶段、时间顺序及上游假设收据。手填 `approved:true` 或修改签名 JSON 不再有效。输入或执行代码变化后必须重新计划与签名。
 
 ### 在签名验证通过后执行
 
@@ -91,6 +101,8 @@ python -m comsol_workflow report runs/heat-plate-001
 ```
 
 每个计划只尝试一次。验收应同时检查当前完成标记、`launcher.log`、`batch.log`、`metrics.csv`、输出 MPH、坐标和温度界限。COMSOL 曾在 Java 执行失败时返回退出码 0，因此不能仅用退出码判成功。实际计算用时来自本次执行记录，不采用构建耗时或预设动画。
+
+本次实测中，运行 token 位于 `launcher.log` 和完成标记；`batch.log` 只有批处理头部，求解进度正文在 `progress.log`。三类日志应同时保留，不能假定每个日志都含 token。另对运行记录中的 15 个结果文件摘要进行了独立核验，全部匹配。
 
 ### 可选场图和表格
 
@@ -116,7 +128,7 @@ python -m comsol_workflow smoke runs/resume-001
 
 若原运行没有记录恢复模型路径，审查它的 recovery 目录后用 `--recovery-model` 指定实际子目录。目录必须位于原运行的 recovery 根内；仅存在空目录不能证明可恢复。
 
-用户针对新计划重新签署 `assumptions`，然后签署 `--stage resume` 并绑定新假设收据；再用 `run` 提交这两份收据。恢复驱动调用 `loadRecovery` 和 `continueRun`，不静默退回初始模型重算。**接口实现与离线测试不等于真实中断续算已经通过**；实测情况见验证记录。
+用户针对新计划重新签署 `assumptions`，然后签署 `--stage resume` 并绑定新假设收据；再用 `run` 提交这两份收据。恢复驱动调用 `loadRecovery` 和 `continueRun`，不静默退回初始模型重算。**当前仅有恢复接口编译和模拟测试，真实中断续算尚未验证。** 本次导热板正常结束后 recovery 目录已清理，不能作为中断恢复成功的证据；见验证记录。
 
 ## D：热电模块与 PI 控制参考
 
