@@ -15,7 +15,7 @@
 | 本机 COMSOL Java 编译 | 通过 | COMSOL Compile 文件版本 6.3.0.290，返回码 0，生成 class；覆盖参数写入、study/solver关联、dataset关联、复数检查等代码分支 |
 | COMSOL 模型加载及求解 | **未执行** | 两份真实案例计划均待人工确认假设和批准求解；许可可用性与新执行器数值复现尚未验证 |
 | 网格、时间步、守恒、实验验证 | **未执行** | 保持 not_run，不从编译成功或旧报告推导通过 |
-| GitHub CI | 已配置，未在 GitHub 运行 | 配置为 Windows/Linux 与 Python 3.10/3.13 的离线测试；这些矩阵不能算本机已验证环境 |
+| GitHub CI | **4 个环境全部通过** | Windows/Linux × Python 3.10/3.13，均通过 36 项测试及合成数据比较；[运行记录](https://github.com/Wangrunze166/comsol-agent-workflow/actions/runs/41819432662)，代码基线 `318b7ae` |
 
 本机共完成 13 项命令检查，包括上述 36 项测试、Skill 校验、合成数据演示、两份实际案例的静态检查和安装脚本检查。版本化证据摘要见 [validation-evidence.json](validation-evidence.json)。原始本机日志与含路径的编译证据保留在私有交付中，不进入公开包。
 

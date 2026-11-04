@@ -24,7 +24,19 @@
   },
   "skill_forward_test": "missing_model_review_bundle_created_with_both_approvals_false",
   "native_client_loading_tested": false,
-  "github_ci_executed": false,
+  "github_ci_executed": true,
+  "github_ci": {
+    "run_id": 41819432662,
+    "head_sha": "318b7aec0dbb40ef652123d86371b382e98ac1d1",
+    "url": "https://github.com/Wangrunze166/comsol-agent-workflow/actions/runs/41819432662",
+    "conclusion": "success",
+    "environments": [
+      "test (windows-latest, 3.13)",
+      "test (ubuntu-latest, 3.13)",
+      "test (windows-latest, 3.10)",
+      "test (ubuntu-latest, 3.10)"
+    ]
+  },
   "new_workflow_comsol_solve_executed": false,
   "engineering_validation_executed": false,
   "real_case_pending_approvals_rejected": true,

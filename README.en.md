@@ -76,6 +76,7 @@ The graphics are original conceptual illustrations, **not computed fields or sim
 | Evidence level | Recorded status |
 |---|---|
 | Offline tests | 36 tests passed locally on Windows with Python 3.14.6 |
+| GitHub CI | Windows/Linux × Python 3.10/3.13: all four environments passed |
 | COMSOL Java compilation | Passed with COMSOL Compile 6.3.0.290; generated code was not executed |
 | Three client installer paths | Copy and overwrite-rejection checks passed; native loading in all three clients has not been tested |
 | Real solve through this executor | **Not performed** |

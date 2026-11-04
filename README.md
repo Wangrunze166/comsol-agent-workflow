@@ -83,6 +83,7 @@ python scripts/install_skill.py --client codex --project .
 | 项目 | 状态 |
 |---|---|
 | 单位、数据、审批和执行状态检查 | 36 项离线测试通过 |
+| GitHub CI | Windows/Linux × Python 3.10/3.13，4 个环境通过 |
 | COMSOL 6.3 Java API | 本机 6.3.0.290 编译通过 |
 | 三端 Skill 分发 | 项目目录复制与拒绝覆盖检查通过；原生加载尚未逐端实测 |
 | 新执行器实际加载与求解 | **尚未执行** |
