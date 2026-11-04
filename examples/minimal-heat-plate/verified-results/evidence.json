@@ -59,5 +59,15 @@
     "A single-field analytic verification example, not a multiphysics validation.",
     "Mesh independence, conservation and experimental validation are not established.",
     "Raw receipts, models and machine-specific logs stay private; public artifacts retain numerical data and hashes."
-  ]
+  ],
+  "executed_driver_sha256": {
+    "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+    "WorkflowDriver.class": "8ad534bb724ba11cd66549fa8667977fe725953b20bcf3cce5ab923b9e1c159d"
+  },
+  "review_bundle_sha256": {
+    "case.snapshot.json": "a2c9b6dd8785d0261ee1047e36e5011327c99125c833ed79586553287f4dd357",
+    "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+    "SmokeDriver.java": "9d0c91ed1df899adde5a74a1cf771d0d448d0a24c23522e841af27363864e8ac",
+    "REVIEW.md": "1ef125def7d016919a7adb80fc2e2b25196df973794227658368adbbff89df02"
+  }
 }

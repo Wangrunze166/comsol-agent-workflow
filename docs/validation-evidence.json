@@ -141,13 +141,13 @@
   "java_compilation": {
     "solve": {
       "compiled": true,
-      "executed": true,
+      "executed": false,
       "artifacts": {
         "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "WorkflowDriver.class": "fda1e0c574bdf5370ef6bd02eebeb9e408e3a118b0987e76f2c2f0e8d90488f3",
         "WorkflowDriver.java": "62e5db3918521ddc2827a84e08b4c79429863a8a480ef3334c99102152b2a5ab"
       },
-      "execution_note": "Native solve used the signed plan driver; compile-only branch hashes below remain compile-only artifacts."
+      "execution_note": "These are separate compile-only artifacts; the actual signed-run driver hashes are recorded in native_end_to_end."
     },
     "resume": {
       "compiled": true,
@@ -251,6 +251,16 @@
       "A single-field analytic verification example, not a multiphysics validation.",
       "Mesh independence, conservation and experimental validation are not established.",
       "Raw receipts, models and machine-specific logs stay private; public artifacts retain numerical data and hashes."
-    ]
+    ],
+    "executed_driver_sha256": {
+      "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+      "WorkflowDriver.class": "8ad534bb724ba11cd66549fa8667977fe725953b20bcf3cce5ab923b9e1c159d"
+    },
+    "review_bundle_sha256": {
+      "case.snapshot.json": "a2c9b6dd8785d0261ee1047e36e5011327c99125c833ed79586553287f4dd357",
+      "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+      "SmokeDriver.java": "9d0c91ed1df899adde5a74a1cf771d0d448d0a24c23522e841af27363864e8ac",
+      "REVIEW.md": "1ef125def7d016919a7adb80fc2e2b25196df973794227658368adbbff89df02"
+    }
   }
 }
