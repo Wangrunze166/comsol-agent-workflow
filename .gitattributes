@@ -2,3 +2,5 @@
 *.png binary
 *.jpg binary
 *.zip binary
+examples/minimal-heat-plate/verified-results/*.csv -text
+examples/minimal-heat-plate/verified-results/completed.ok -text
