@@ -6,11 +6,12 @@ import sys
 from .case import read_json, validate
 from .comsol63 import toolchain
 from .results import compare, diagnose
-from .workflow import prepare, execute, report, approval_template
+from .workflow import prepare, prepare_resume, execute, smoke, report, approval_template, verify_plan
+from .approvals import keygen_interactive, approve_interactive
 
 
 def parser():
-    p = argparse.ArgumentParser(description="Reviewable COMSOL 6.3 workflow; only 'run' launches COMSOL.")
+    p = argparse.ArgumentParser(description="Reviewable COMSOL 6.3 workflow. smoke loads/inspects only; run requires signed human approval.")
     sub = p.add_subparsers(dest="command", required=True)
     q = sub.add_parser("init", help="Copy an intentionally incomplete case template")
     q.add_argument("directory")
@@ -20,9 +21,27 @@ def parser():
     q.add_argument("case")
     q.add_argument("--out", required=True)
     q.add_argument("--comsol-root")
+    q.add_argument("--public-key", help="User-provisioned trusted Ed25519 public key")
     q = sub.add_parser("approval-template", help="Write a pending receipt; never approves")
     q.add_argument("run_dir")
-    q.add_argument("--stage", choices=["assumptions", "solve"], required=True)
+    q.add_argument("--stage", choices=["assumptions", "solve", "resume"], required=True)
+    q = sub.add_parser("approval-keygen", help="User-side TTY only: create an encrypted signing key")
+    q.add_argument("--private-key", required=True)
+    q.add_argument("--public-key", required=True)
+    q = sub.add_parser("approve", help="User-side TTY only: sign one exact engineering or compute decision")
+    q.add_argument("run_dir")
+    q.add_argument("--stage", choices=["assumptions", "solve", "resume"], required=True)
+    q.add_argument("--private-key", required=True)
+    q.add_argument("--public-key", required=True)
+    q.add_argument("--out", required=True)
+    q.add_argument("--assumptions", help="Required signed parent receipt for solve/resume")
+    q = sub.add_parser("smoke", aliases=["dry-run"], help="Native load/tag/scope inspection only; never solve or save an MPH")
+    q.add_argument("run_dir")
+    q = sub.add_parser("resume", help="Snapshot an interrupted run's recovery files into a new approval plan")
+    q.add_argument("origin_dir")
+    q.add_argument("--out", required=True)
+    q.add_argument("--public-key")
+    q.add_argument("--recovery-model", help="Actual model recovery subdirectory, inside the interrupted run's recovery root")
     q = sub.add_parser("run", help="Start the real solver only with two human approval receipts")
     q.add_argument("run_dir")
     q.add_argument("--assumptions", required=True)
@@ -57,12 +76,24 @@ def main(argv=None):
         elif args.command == "validate":
             result = validate(read_json(args.case), Path(args.case).resolve().parent)
         elif args.command == "plan":
-            plan = prepare(args.case, args.out, args.comsol_root)
+            plan = prepare(args.case, args.out, args.comsol_root, args.public_key)
             result = {"run_dir": plan["run_dir"], "review": str(Path(plan["run_dir"]) / "REVIEW.md"),
                       "approval_requests": str(Path(plan["run_dir"]) / "approval_requests"),
                       "digest": plan["content_digest"], "checks": plan["checks"], "status": "not_executed"}
         elif args.command == "approval-template":
             result = {"path": approval_template(args.run_dir, args.stage), "approved": False}
+        elif args.command == "approval-keygen":
+            result = keygen_interactive(args.private_key, args.public_key)
+        elif args.command == "approve":
+            plan, _ = verify_plan(args.run_dir)
+            result = approve_interactive(plan, args.stage, args.private_key, args.out,
+                                         args.public_key, parent_receipt=args.assumptions)
+        elif args.command in ("smoke", "dry-run"):
+            result = smoke(args.run_dir)
+        elif args.command == "resume":
+            plan = prepare_resume(args.origin_dir, args.out, args.public_key, args.recovery_model)
+            result = {"run_dir": plan["run_dir"], "operation": "resume", "digest": plan["content_digest"],
+                      "status": "not_executed", "checks": plan["checks"]}
         elif args.command == "run":
             result = execute(args.run_dir, args.assumptions, args.approval)
         elif args.command == "report":

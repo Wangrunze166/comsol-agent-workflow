@@ -1,53 +1,181 @@
 {
   "date": "2026-11-04",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "platform_tested": "Windows",
   "python_tested": "3.14.6",
+  "cryptography_tested": "50.0.2",
   "offline_tests": {
-    "count": 36,
+    "count": 96,
     "passed": true,
-    "raw_log_sha256": "acdb7d40c48ab3858a11b6028e65d653dc3998903b8256d86e05a2615cc82281"
+    "raw_log_sha256": "e6baf7671679ee2967799ba1c35f548a442ec1e8d2070d84292412be940b1eb1"
   },
-  "command_checks": {
-    "count": 13,
-    "all_passed": true
+  "minimal_builder": {
+    "comsol_version": "6.3.0.290",
+    "built": true,
+    "solved": false,
+    "elements": 192,
+    "minimum_quality": 0.7222,
+    "build_only_wall_seconds": 34.62,
+    "unsolved_mph_sha256": "ca7c161b128e9e039fc1d5cd05c33542b54f489a9366d15ceb107d134b040afd"
   },
-  "comsol_java_compile": {
-    "tool_file_version": "6.3.0.290",
-    "exit_code": 0,
-    "includes_parameter_override_branch": true,
-    "artifact_hashes": {
-      "WorkflowDriver.java": "b0e1307515073d905a2db1ba57e609c9130294a55af72f7444cc4c9bdfe36225",
-      "WorkflowDriver.class": "1772e94d98c15a56ac9961e318776c1360c062a0767fd897ea616fc5c1445626",
-      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  "native_load_only_checks": [
+    {
+      "case": "safe",
+      "expected": "passed",
+      "actual": "passed",
+      "passed": true,
+      "error": null,
+      "scope": {
+        "passed": true,
+        "checked": true,
+        "overrides": [
+          "T_hot"
+        ],
+        "affected_parameters": [
+          "T_hot"
+        ],
+        "hits": [],
+        "incomplete": [],
+        "unsupported": [],
+        "proof_scope": "Stored geometry, mesh and named-selection expressions with global parameter dependencies; not a proof of whole-model physics or arbitrary COMSOL expressions."
+      },
+      "wall_seconds": 27.365895900000396,
+      "artifact_sha256": {
+        "batch.log": "c8b1e3078a325cd491403798d526a84e98d9c3f3894f8ff3d755373dc06cb09b",
+        "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inspection-state.json": "1415fce99c6d05c88b820a3bf10faf59354fab66da863a1d844f93f10f6627b4",
+        "launcher.log": "8e0daa956b826cb6fbc2133159db5d4ca5a0ef8b8587d629d4cff4e512b17b43",
+        "progress.log": "f57ad35af34d42733f8141c482f621dfd7f84165ab6db78a12d8cdc4a22f2956",
+        "scope-inventory.json": "d7eac3bb1c353419947acbed50452eda3172ce5321c42c3a1017494fcb439cb1",
+        "smoke.ok": "47493bd3821d652b58cea97ed261b54a1786444fe24639a390dc38486296ffeb"
+      }
+    },
+    {
+      "case": "geometry-block",
+      "expected": "failed",
+      "actual": "failed",
+      "passed": true,
+      "error": "Parameter scope is unsafe or incomplete; inspect scope-inventory.json",
+      "scope": {
+        "passed": false,
+        "checked": true,
+        "overrides": [
+          "L"
+        ],
+        "affected_parameters": [
+          "L",
+          "L_geom"
+        ],
+        "hits": [
+          {
+            "path": "components/comp1/geometry/geom1/r1/lx",
+            "scope": "geometry",
+            "expression": "L_geom",
+            "parameter": "L_geom",
+            "dependency_path": [
+              "L",
+              "L_geom"
+            ]
+          },
+          {
+            "path": "components/comp1/geometry/geom1/r1/size",
+            "scope": "geometry",
+            "expression": "L_geom",
+            "parameter": "L_geom",
+            "dependency_path": [
+              "L",
+              "L_geom"
+            ]
+          },
+          {
+            "path": "components/comp1/mesh/mesh1/size/hmax",
+            "scope": "mesh",
+            "expression": "L/12",
+            "parameter": "L",
+            "dependency_path": [
+              "L"
+            ]
+          },
+          {
+            "path": "components/comp1/mesh/mesh1/size/hmin",
+            "scope": "mesh",
+            "expression": "L/120",
+            "parameter": "L",
+            "dependency_path": [
+              "L"
+            ]
+          }
+        ],
+        "incomplete": [],
+        "unsupported": [],
+        "proof_scope": "Stored geometry, mesh and named-selection expressions with global parameter dependencies; not a proof of whole-model physics or arbitrary COMSOL expressions."
+      },
+      "wall_seconds": 28.63635390000036,
+      "artifact_sha256": {
+        "batch.log": "e6d381c050d1303bef1a7fe8b61bace4ac4a000a85223221cdbd62a6ec2e8285",
+        "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inspection-state.json": "1ecefc6e2c7050c2ca7869c61d7a823005c2aa175d55b48251372f0030c0a8ee",
+        "launcher.log": "f7714575b68c86e4550fd942d1ea5b781b5965c31166fce4cdc356760b3cb8d5",
+        "progress.log": "4710af3901e087d5f495c515b4bce2089d1d8c288913799dcc5923d1969e01cd",
+        "scope-inventory.json": "d7eac3bb1c353419947acbed50452eda3172ce5321c42c3a1017494fcb439cb1",
+        "smoke.ok": "2e4461002e06ebc948c3aae14e8e046c375c65e84563d41784ce0a1b333ae181"
+      }
+    },
+    {
+      "case": "tag-block",
+      "expected": "failed",
+      "actual": "failed",
+      "passed": true,
+      "error": "COMSOL load/inspection failed",
+      "scope": null,
+      "wall_seconds": 28.082066199999645,
+      "artifact_sha256": {
+        "batch.log": "7034609bf23e9ac78e070936c48e911b910f802a6c06e947b7ef34679cba8a6c",
+        "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inspection-state.json": "65966b7d1cf5ce1bc8eb0f7755a5d4132d1e7f328f79001fc184cc9129683e23",
+        "launcher.log": "22f939740f352b47dbb8cc91b9246046c0a51b93027c815bedcf5fd31c2af344",
+        "progress.log": "3cb1a2ccd80d87995883c2c071b6c410b8ccfaa0494591d39fcd6a0f78ebae83"
+      }
+    }
+  ],
+  "java_compilation": {
+    "solve": {
+      "compiled": true,
+      "executed": false,
+      "artifacts": {
+        "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "WorkflowDriver.class": "fda1e0c574bdf5370ef6bd02eebeb9e408e3a118b0987e76f2c2f0e8d90488f3",
+        "WorkflowDriver.java": "62e5db3918521ddc2827a84e08b4c79429863a8a480ef3334c99102152b2a5ab"
+      }
+    },
+    "resume": {
+      "compiled": true,
+      "executed": false,
+      "artifacts": {
+        "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "WorkflowDriver.class": "d68cef8946bf0110af97d59bd3d37b4e4f63ac3503c8045d8c29c48f13a29639",
+        "WorkflowDriver.java": "eb01771fe906d901d7220e81ee87e4e2de0bd9a98ab7647583cf004a4891b927"
+      }
     }
   },
-  "skill_forward_test": "missing_model_review_bundle_created_with_both_approvals_false",
-  "native_client_loading_tested": false,
-  "github_ci_executed": true,
-  "github_ci": {
-    "run_id": 41819432662,
-    "head_sha": "318b7aec0dbb40ef652123d86371b382e98ac1d1",
-    "url": "https://github.com/Wangrunze166/comsol-agent-workflow/actions/runs/41819432662",
-    "conclusion": "success",
-    "environments": [
-      "test (windows-latest, 3.13)",
-      "test (ubuntu-latest, 3.13)",
-      "test (windows-latest, 3.10)",
-      "test (ubuntu-latest, 3.10)"
-    ]
-  },
+  "signed_user_approvals": "pending_user_action",
   "new_workflow_comsol_solve_executed": false,
+  "real_png_table_export_verified": false,
+  "real_interrupted_resume_verified": false,
   "engineering_validation_executed": false,
-  "real_case_pending_approvals_rejected": true,
+  "github_ci": {
+    "status": "pending_current_revision"
+  },
   "executor_code_fingerprints": {
-    "__init__.py": "79709742c501af239c81a8c596e7c7f425c7c9b3e70d2ca7eddd3f86c3a90d32",
+    "__init__.py": "2252a86ce173ee283f4051f19f54ec5915ca949f64e8dc9384dc4413dc1e36b4",
     "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
-    "case.py": "71582c7924ef29a9f9f2336b33991259f349a090537da925a443c4b747033be2",
-    "cli.py": "25aaac75f89b76f06dae602bc9a85a81ce805cbe4c1697cf6adead93720c0122",
-    "comsol63.py": "608b5e1b887dd3f66cbec6d58bdd37f8365f0bf944d5a1299009c69b7ad280b6",
+    "approvals.py": "e65a43f4d2d18beefe8ce0b62b9eb449b175f0e9d73decf874b1153533230610",
+    "case.py": "d4c4343aab1cdbcd93a078723419ae20e9a7b3aeb8e2cc0b2417bcf040220a19",
+    "cli.py": "c553dd2d3fdabf601bc870e754a47661c887318e5de82701b3854e3a8a55c9be",
+    "comsol63.py": "2ecb3c687d4f63206e71cb7c1922fc165b22f89f89b435be5fa0f128095e65f4",
     "results.py": "0683f805c294b0affbd960805fd921cf21d5aa8211f5e1e9786578e282055621",
+    "scope.py": "2475107d11f78604e6dce9e59ead3d2167414d0e0e8908a1c372f5e07eb4b016",
     "units.py": "170fcc03a67ea963e478d9650547635636b2325d97671caeaec1a791fb5998c3",
-    "workflow.py": "211002ecfe958c38c84673bd3cbbd1d4197ed6da8b5941178657f4fe84623036"
+    "workflow.py": "069ac71ea5f57225936e31878cf58b3c6c93d8a9f5c597e9ebb92210960987b3"
   }
 }
