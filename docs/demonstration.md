@@ -1,79 +1,144 @@
 # 演示说明
 
-## 演示 A：无 COMSOL 的离线流程
+v0.2 将离线流程、模型构建、只加载检查、实际求解与中断恢复分开演示。**最小导热板已在本机构建并保存为空解；smoke、安全参数检查、几何/网格参数阻断及错误标签阻断已实测通过。真实求解等待用户签署，尚无完整成功记录。** 最新状态见[验证记录](validation-status.md)。
 
-使用 `examples/offline` 的合成数据演示工作流检查和结果比较。数据用于观察正常、异常和拒绝行为，不是 COMSOL 计算结果，也不是热电案例的实测数据。
+## A：无需 COMSOL 的离线体验
+
+`examples/offline` 包含明确标注的合成数据，用于观察比较、日志诊断和拒绝行为。它不是 COMSOL 结果，也不是热电案例的实测数据。
 
 ```console
 python -m comsol_workflow --help
 python -m comsol_workflow compare examples/offline/actual.csv examples/offline/reference.csv --coordinate time_s --atol 0.01 --rtol 0.001
 python -m comsol_workflow diagnose examples/offline/solver-synthetic.txt
-python -m unittest discover -s tests -v
-python -m comsol_workflow plan examples/thermoelectric-pid/case.json --out runs/offline-review
+python -m comsol_workflow plan examples/minimal-heat-plate/case.json --out runs/offline-review
 ```
 
-最后一条产生 `REVIEW.md`、`case.snapshot.json`、生成的 Java、`plan.json`、待审批模板和 `report.md`。模型和 COMSOL 路径缺失会列为阻塞条件，`report.md` 为 `not_executed`。重复运行请使用新的空目录。
+最后一条生成 `REVIEW.md`、案例快照、两份 Java 驱动、计划、待审批请求和报告。公开案例没有附 MPH 或本机安装路径，缺失条件会明确列出，状态保持 `not_executed`。不要伪造模型或审批记录绕过拒绝；重复演示使用新的空目录。
 
-按实际命令帮助运行示例比较、检查单位错误、缺失输入与失效审批。演示的合格结果包括正确拒绝不完整案例；“被阻止”是预期行为，不应将占位输入修改成假模型以绕过检查。
-
-测试与校验状态见 [本次验证记录](validation-status.md)。该演示不启动 COMSOL，不检查许可，也不证明求解器能够收敛。
-
-## 演示 B：热电模块与 PI 控制
-
-参考 [COMSOL 官方案例 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421) 和 [官方案例说明](https://www.comsol.com/model/download/1479601/lumped_thermoelectric_module_PID_control.pdf)。公开仓库只提供案例元数据与复现流程，模型由使用者按许可从官方来源取得。
-
-已经恢复的参考配置如下，实际执行仍以使用者审核后的输入 MPH 与 Java 导出为准：
-
-| 项目 | 参考配置 |
-|---|---|
-| 几何 | 3D 空气域、8 片散热翅片、底座、热电模块、接触层、电子器件 |
-| 空气域 | 200 × 400 × 120 mm |
-| 底座与翅片 | 底座 100 × 100 × 4 mm；翅片高 38 mm、热学厚度 2.5 mm，壳表示 |
-| 器件与模块 | 器件 15 × 15 × 5 mm；模块 40 × 40 × 4.5 mm，集总热网络 |
-| 接触层 | 厚 2.5 mm |
-| 环境与入口 | 20°C，空气入口 0.5 m/s |
-| 热源 | 稳态 4 W；瞬态在 10 min 后开启，平滑宽度 2 s |
-| 热电参数 | 最大电流 4 A，最大热流率 40 W，最大温差 70 K，电阻 2 Ω |
-| 稳态 | 电流 0.5–3.5 A，间隔 0.5 A |
-| 瞬态 | 0–60 min，输出每 2 min |
-| 控制 | 设定值 6.5°C；kP = −0.05 A/K，kI = −0.005 A/(K·s)，kD = 0；电流限幅 0.01–4 A |
-| 耦合次序 | 先稳态流场，再冻结流场求热学；瞬态加入控制积分变量 |
-
-案例名称沿用 PID，以上配置实际为 PI。它不是随温度同步更新流场的全瞬态双向耦合。原模型中控制器的偏置和限幅表达式应完整保留，不能只凭此摘要重建。
-
-准备与执行：
-
-1. 获取有权使用的 6.3 模型，核验安装、模块、补丁版本与模型版本。
-2. 按 `examples/thermoelectric-pid/case.json` 准备私有案例；填写真实 MPH、相关依赖和配置审阅证据。占位案例保持待补充状态，不能直接求解。
-3. 核对研究与求解序列、参数、数据集和输出表达式。生成静态计划，确认假设后再审批实际计算。
-4. 运行指定序列，导出完整扫描或时间序列与最终 MPH；对照基准文件前先核对单位与坐标。
-5. 保存逐点比较、日志诊断和验证状态；明确网格、时间步、实验验证是否完成。
-
-以 PowerShell 为例，先复制案例并填好实际路径：
-
-```powershell
-python -m comsol_workflow init private/my-case
-# 编辑 private/my-case/case.json，或将公开案例复制到此处再修正相对路径。
-python -m comsol_workflow validate private/my-case/case.json
-python -m comsol_workflow doctor --root 'C:\Program Files\COMSOL\COMSOL63\Multiphysics'
-python -m comsol_workflow plan private/my-case/case.json --out runs/review-001 --comsol-root 'C:\Program Files\COMSOL\COMSOL63\Multiphysics'
-```
-
-安装路径仅为示意，应替换为本机路径。审阅计划后，将 `approval_requests/assumptions.json` 和 `solve.json` 各自复制到私有 `approvals/` 目录。**人类先确认假设，再单独批准求解**：保留 `stage`/`content_digest`，记录 `approved`、`approved_by`、带时区的 `approved_at` 以及可追溯的 `decision_evidence`。智能体只能转录真实决定。新计划会产生新的指纹，不能沿用旧文件。
-
-仅在上述两个决定真实发生后执行：
+开发检查可安装可选审批依赖后运行：
 
 ```console
-python -m comsol_workflow run runs/review-001 --assumptions approvals/assumptions.json --approval approvals/solve.json
-python -m comsol_workflow report runs/review-001
+python -m pip install -e ".[approval]"
+python -m unittest discover -s tests -v
 ```
 
-默认每个计划只尝试运行一次；失败、超时或修改后使用新目录重新计划。版本首次接入建议先批准稳态案例，再安排瞬态。继承的目标时间网格不等同内部积分步长。
+离线测试不检查 COMSOL 许可，不证明模型加载或求解收敛。
 
-输出含义：器件平均温度使用 `comp1.dom1`；模块热流率使用 `comp1.lts.TEM1.P`；模块温差使用 `comp1.lts.TEM1.DT`；瞬态控制电流使用 `comp2.u_in_ctrl`。数据集和标签必须在实际输入模型中确认。
+## B：最小导热板，先构建再审批
 
-历史项目已留下本机复现报告，但新执行器的计算状态以本仓库验证记录为准。历史参考有 COMSOL 6.3 补丁版本差异，也未开展网格、时间步独立性或实验验证；公开演示不继承超出这些证据的结论。
+[最小模型](../examples/minimal-heat-plate/README.md)是本次新增的执行链验证案例，不是原有多物理场研究模型。
 
-## 演示录屏建议
+| 项目 | 设定与验收 |
+| --- | --- |
+| 几何 | 10 × 5 mm 二维矩形；左右边界按坐标选择，各必须选中一个不同实体 |
+| 材料 | k=1 W/(m·K)，ρ=1000 kg/m³，Cp=1000 J/(kg·K)，常数各向同性 |
+| 物理条件 | 稳态导热，无内热源；左 293.15 K，右 303.15 K，上下绝热 |
+| 网格 | FreeTri，最大尺寸 L/12，最小尺寸 L/120 |
+| 基准 | 解析平均温度 298.15 K；接受区间 [298.149, 298.151] K |
+| 输出 | case_no=1、Tmean_K；可选 temperature.png 与 global-results.csv |
+| 时间 | 2 核、300 秒超时；实际运行是否小于 5 分钟须由日志证明 |
 
-依次展示模型来源、案例清单、静态错误拦截、可读计划、两个人工检查点、真实求解记录、逐点比较和报告。若没有执行真实求解，在画面与说明中写“离线流程演示”，不使用模拟进度或合成曲线暗示真实计算已完成。
+按示例 README 编译并运行 `BuildHeatPlate.java`。它只构建几何、材料、网格和输出节点，保存未求解 MPH；不会调用求解器。2026-11-04 本机构建用时 34.620 秒，网格 192 单元、最小质量 0.7222，保存后 `sol1.isEmpty=true`。这些数字不属于求解证据。
+
+将 MPH 和案例配置放在私有目录，修正 `model.path`。下述示意路径需按本机修改：
+
+```powershell
+python -m comsol_workflow validate private/heat-plate/case.json
+python -m comsol_workflow doctor --root 'C:\Program Files\COMSOL\COMSOL63\Multiphysics'
+```
+
+`doctor` 只检查启动器路径，不检验许可或数值行为。
+
+### 用户准备签名密钥
+
+本步骤由用户在受信终端执行，私钥和口令位于 Agent 无权访问的边界外。下面的 `X:\operator-only` 代表用户自行管理的受保护位置，不是自动创建安全边界的功能。
+
+```powershell
+python -m comsol_workflow approval-keygen --private-key 'X:\operator-only\approval-private.pem' --public-key 'X:\operator-only\approval-public.pem'
+```
+
+用户将公钥提供给计算端，核验指纹，并保护计算端的公钥与执行器。私钥口令仅在用户终端隐藏输入，不放进参数、环境变量、聊天或仓库。TTY 只拒绝管道误用，不能防止 Agent 创建伪终端；完整约束见[审批安全说明](approval-security.md)。不要让 Agent 创建其已知口令的“用户密钥”并代签。
+
+### 生成计划并进行只加载检查
+
+计算端仅持有用户提供的公钥：
+
+```powershell
+python -m comsol_workflow plan private/heat-plate/case.json --out runs/heat-plate-001 --comsol-root 'C:\Program Files\COMSOL\COMSOL63\Multiphysics' --public-key trust/approval-public.pem
+python -m comsol_workflow smoke runs/heat-plate-001
+```
+
+`dry-run` 是 `smoke` 的别名。两者会启动 COMSOL，加载模型副本并检查研究／求解／数据集标签、可选场图绑定和参数依赖；不调用研究或求解器、不重建几何或网格、不清空已有解、不保存新 MPH。它与只读 JSON 的 `validate` 不同，也不等同于原生批处理的所有测试选项。
+
+检查器从 Java API 返回的几何／网格属性反查参数表达式链。示例中 `L_geom=L` 影响几何，`L/12` 影响网格；把 `L` 错标成 `physics_scalar` 应被阻断，并报告命中路径。`T_hot` 只影响温度边界。引用检查的范围与未能读取的项必须保留在检查报告中，不能用人工填写的 scope 替代模型检查。
+
+### 用户签署两个决定
+
+用户审阅 `REVIEW.md`、案例、模型、生成驱动和加载检查结果后，先确认工程假设，再单独批准当前求解。以下命令由用户在受信环境运行；示例路径仅供说明。
+
+```powershell
+python -m comsol_workflow approve runs/heat-plate-001 --stage assumptions --private-key 'X:\operator-only\approval-private.pem' --public-key trust/approval-public.pem --out approvals/heat-plate-assumptions.json
+python -m comsol_workflow approve runs/heat-plate-001 --stage solve --private-key 'X:\operator-only\approval-private.pem' --public-key trust/approval-public.pem --assumptions approvals/heat-plate-assumptions.json --out approvals/heat-plate-solve.json
+```
+
+命令要求交互确认动作和计划摘要，再解锁用户私钥。执行器核验 Ed25519 签名、计划指纹、阶段、时间顺序及上游假设收据。手填 `approved:true` 或修改签名 JSON 不再有效。输入或执行代码变化后必须重新计划与签名。
+
+### 在签名验证通过后执行
+
+```console
+python -m comsol_workflow run runs/heat-plate-001 --assumptions approvals/heat-plate-assumptions.json --approval approvals/heat-plate-solve.json
+python -m comsol_workflow report runs/heat-plate-001
+```
+
+每个计划只尝试一次。验收应同时检查当前完成标记、`launcher.log`、`batch.log`、`metrics.csv`、输出 MPH、坐标和温度界限。COMSOL 曾在 Java 执行失败时返回退出码 0，因此不能仅用退出码判成功。实际计算用时来自本次执行记录，不采用构建耗时或预设动画。
+
+### 可选场图和表格
+
+案例可声明：
+
+```json
+"postprocess": {
+  "field_plot": {"tag": "pgT", "filename": "temperature.png"},
+  "table": {"filename": "global-results.csv"}
+}
+```
+
+场图须预先配置并绑定已审阅的数据集；PNG 来自本次求解结果，表格包含全局指标及单位。缺失节点、空文件或错误格式应使交付检查失败。导出图像不证明数值正确，工程验证仍单独记录。
+
+## C：中断后从恢复数据续算
+
+执行器启用原生 recovery 保存。仅当失败或中断的运行确实留下有效模型恢复目录时，才创建新恢复计划；原计划与原始日志继续保留。
+
+```console
+python -m comsol_workflow resume runs/interrupted-001 --out runs/resume-001 --public-key trust/approval-public.pem
+python -m comsol_workflow smoke runs/resume-001
+```
+
+若原运行没有记录恢复模型路径，审查它的 recovery 目录后用 `--recovery-model` 指定实际子目录。目录必须位于原运行的 recovery 根内；仅存在空目录不能证明可恢复。
+
+用户针对新计划重新签署 `assumptions`，然后签署 `--stage resume` 并绑定新假设收据；再用 `run` 提交这两份收据。恢复驱动调用 `loadRecovery` 和 `continueRun`，不静默退回初始模型重算。**接口实现与离线测试不等于真实中断续算已经通过**；实测情况见验证记录。
+
+## D：热电模块与 PI 控制参考
+
+保留 [COMSOL 官方案例 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421) 及其[官方说明](https://www.comsol.com/model/download/1479601/lumped_thermoelectric_module_PID_control.pdf)对应的复现配置。公开仓库仅提供元数据，模型由使用者按许可获取；实际设置以审阅后的 MPH 为准。
+
+| 项目 | 参考配置 |
+| --- | --- |
+| 几何 | 空气域 200 × 400 × 120 mm；底座 100 × 100 × 4 mm；8 片高 38 mm、热学厚 2.5 mm 的壳翅片 |
+| 器件／模块 | 器件 15 × 15 × 5 mm；TEM 40 × 40 × 4.5 mm；接触层 2.5 mm |
+| 环境 | 20°C，入口 0.5 m/s |
+| 热源 | 稳态 4 W；瞬态在 10 min 后开启，平滑宽度 2 s |
+| 热电参数 | 最大电流 4 A、最大热流率 40 W、最大温差 70 K、电阻 2 Ω |
+| 研究 | 电流 0.5–3.5 A，间隔 0.5 A；瞬态 0–60 min，每 2 min 输出 |
+| 控制 | 设定值 6.5°C；kP=−0.05 A/K，kI=−0.005 A/(K·s)，kD=0；电流限幅 0.01–4 A |
+| 耦合顺序 | 先稳态流场，后冻结流场求热学；瞬态包含控制积分变量 |
+
+名称沿用 PID，但该配置实际为 PI，且不是全瞬态双向流热耦合。保留原控制器偏置与限幅表达式。器件平均温度、TEM 热流率与温差的表达式及数据集必须从实际模型核验；模块热流率不能直接等同器件功率或冷端制冷量。
+
+先完成稳态案例，再按独立计划安排瞬态。目标输出时间点不等于内部积分步长。历史本机复现报告不自动计入新执行器验证；网格、时间步、守恒和实验检查保持各自实际状态。
+
+## 演示画面与公开证据
+
+介绍方式参考经核验的 [FreeCAD、Taichi、MuJoCo、Open3D](presentation-references.md)，四者在 2026-11-04 均超过 10K stars。现有 SVG 是原创概念图；没有真实求解证据时，画面注明“离线流程”或“构建／加载检查”，不显示虚构云图、结果曲线或求解成功动画。
+
+公开展示建议依次呈现模型来源、案例、只加载检查、用户签名、实际执行记录、数值检查和报告。任何尚未执行的阶段明确标为未验证。

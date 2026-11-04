@@ -4,16 +4,40 @@ No test launches COMSOL. Mocked executor tests demonstrate control flow only;
 they are not license checks, API validation or evidence of a real simulation.
 """
 from datetime import datetime, timedelta, timezone
+import base64
+import importlib.util
+import json
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from comsol_workflow.case import read_json, write_json, validate
+from comsol_workflow.approvals import SCOPES
+from comsol_workflow.case import read_json, write_json, validate, sha256
 from comsol_workflow.results import compare, diagnose, read_csv, validate_metrics
 from comsol_workflow.units import check_quantity, parse_unit
 from comsol_workflow.workflow import execute, invoke, prepare, report, verify_plan, verify_receipt
+
+HAS_CRYPTO = importlib.util.find_spec("cryptography") is not None
+if HAS_CRYPTO:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+
+def native_frame(token, kind, value):
+    return f"WORKFLOW_DATA {token} {kind} " + base64.b64encode(value.encode("utf-8")).decode("ascii")
+
+
+def synthetic_inventory():
+    return {"schema_version": 1, "parameters": [
+        {"name": "T0", "expression": "20[degC]"},
+        {"name": "lo", "expression": "1[mm]"},
+        {"name": "hi", "expression": "2[mm]"}],
+        "properties": [{"path": "components/comp1/geometry/geom1/blk1/size",
+                        "scope": "geometry", "expressions": ["1[mm]", "2[mm]", "3[mm]"]}],
+        "incomplete": [], "unsupported": [], "functions": [],
+        "scanned": {"components": 1, "geometries": 1, "meshes": 1, "features": 1}}
 
 
 def synthetic_case():
@@ -108,6 +132,11 @@ class TemporaryCase(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"SYNTHETIC non-executable placeholder")
         self.case = synthetic_case()
+        self.test_key = Ed25519PrivateKey.generate() if HAS_CRYPTO else None
+        self.public_key = self.root / "SYNTHETIC-TEST-ONLY-public.pem"
+        if self.test_key:
+            self.public_key.write_bytes(self.test_key.public_key().public_bytes(
+                serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo))
         # A final safeguard in addition to mocking invoke: no subprocess may launch.
         self.popen_patch = patch("comsol_workflow.workflow.subprocess.Popen", side_effect=AssertionError("No process is permitted in offline tests"))
         self.popen = self.popen_patch.start()
@@ -119,35 +148,71 @@ class TemporaryCase(unittest.TestCase):
             # The title, sources, bytes, receipts and result remain visibly synthetic.
             self.case["provenance"]["kind"] = "user_model"
         write_json(self.case_path, self.case)
-        return prepare(self.case_path, self.run_dir, self.tool_root)
+        return prepare(self.case_path, self.run_dir, self.tool_root,
+                       self.public_key if self.test_key else None)
 
     def receipt(self, plan, stage_name, **overrides):
         # This helper is not a real approval and is never used outside TemporaryDirectory.
-        receipt = {"stage": stage_name, "content_digest": plan["content_digest"], "approved": True,
+        parent = self.root / "assumptions-synthetic-receipt.json"
+        receipt = {"stage": stage_name, "action_scope": SCOPES[stage_name],
+                   "public_key_id": plan["approval_public_key"]["keyid"],
+                   "parent_receipt_sha256": sha256(parent) if stage_name != "assumptions" and parent.is_file() else None,
+                   "content_digest": plan["content_digest"], "approved": True,
                    "approved_by": "SYNTHETIC TEST IDENTITY — NOT A HUMAN APPROVAL",
                    "approved_at": datetime.now(timezone.utc).isoformat(),
                    "decision_evidence": "fabricated unittest branch input, no human consent"}
         receipt.update(overrides)
         path = self.root / (stage_name + "-synthetic-receipt.json")
-        write_json(path, receipt)
+        signed_bytes = b"comsol-agent-workflow/approval/v1\0" + json.dumps(
+            receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
+        write_json(path, {"schema_version": 1, "algorithm": "Ed25519",
+                          "keyid": plan["approval_public_key"]["keyid"], "payload": receipt,
+                          "signature": base64.b64encode(self.test_key.sign(signed_bytes)).decode("ascii")})
         return path
 
     def fake_successful_invocation(self, argv, cwd, log, timeout):
         """Fabricate outputs so the Python validation branch can be tested offline."""
-        Path(log).write_text("SYNTHETIC PROCESS LOG; no process ran", encoding="utf-8")
+        log = Path(log)
+        log.write_text("SYNTHETIC PROCESS LOG; no process ran", encoding="utf-8")
         if "compile" in Path(argv[0]).name:
-            (self.run_dir / "WorkflowDriver.class").write_bytes(b"SYNTHETIC bytecode placeholder")
+            driver = "SmokeDriver" if any("SmokeDriver.java" in str(arg) for arg in argv) else "WorkflowDriver"
+            (Path(cwd) / (driver + ".class")).write_bytes(b"SYNTHETIC bytecode placeholder")
         else:
-            output = self.run_dir / "results"
-            token = read_json(self.run_dir / "plan.json")["completion_token"]
-            Path(log).write_text(f"SYNTHETIC PROCESS LOG; no process ran\nWORKFLOW_SOLVE_BEGIN {token}\n", encoding="utf-8")
-            (output / "solved.mph").write_bytes(b"SYNTHETIC solved model placeholder")
-            (output / "completed.ok").write_text(token)
-            (output / "metrics.csv").write_text("time_s,temperature_degC\n0,20\n1,21\n", encoding="utf-8")
+            plan = read_json(Path(cwd) / "plan.json")
+            token = plan["completion_token"]
+            output = log.parent
+            (output / "batch.log").write_text("SYNTHETIC native batch log; no process ran", encoding="utf-8")
+            if output.name == "inspection":
+                log.write_text(native_frame(token, "inventory", json.dumps(synthetic_inventory()))
+                               + f"\nWORKFLOW_SMOKE_COMPLETED {token}\n", encoding="utf-8")
+            else:
+                begin = "WORKFLOW_RESUME_BEGIN" if plan.get("operation") == "resume" else "WORKFLOW_SOLVE_BEGIN"
+                metrics = "time_s,temperature_degC\n0,20\n1,21\n"
+                lines = [f"{begin} {token}", native_frame(token, "metrics", metrics),
+                         f"WORKFLOW_COMPLETED {token} rows=2"]
+                postprocess = read_json(Path(cwd) / "case.snapshot.json").get("postprocess", {})
+                if "table" in postprocess:
+                    lines.append(native_frame(token, "table", metrics))
+                if "field_plot" in postprocess:
+                    (output / postprocess["field_plot"]["filename"]).write_bytes(b"\x89PNG\r\n\x1a\nSYNTHETIC")
+                log.write_text("\n".join(lines) + "\n", encoding="utf-8")
+                (output / "solved.mph").write_bytes(b"SYNTHETIC solved model placeholder")
         return {"argv": argv, "exit_code": 0, "wall_seconds": 0}
 
 
 class CaseValidationTests(TemporaryCase):
+    def test_recovery_interval_is_an_optional_bounded_integer(self):
+        for seconds in (1, 3600):
+            self.case["execution"]["recovery_interval_seconds"] = seconds
+            with self.subTest(seconds=seconds):
+                self.assertTrue(validate(self.case, self.root)["valid"])
+        for seconds in (True, False, 0, -1, 3601, 1.0, "30"):
+            self.case["execution"]["recovery_interval_seconds"] = seconds
+            result = validate(self.case, self.root)
+            with self.subTest(seconds=seconds):
+                self.assertFalse(result["valid"])
+                self.assertTrue(any("recovery_interval_seconds" in error for error in result["errors"]))
+
     def test_complete_synthetic_case_and_physical_constraint(self):
         self.assertTrue(validate(self.case, self.root)["valid"])
         self.case["parameters"][1]["value"] = 3
@@ -184,6 +249,7 @@ class CaseValidationTests(TemporaryCase):
             read_json(self.case_path)
 
 
+@unittest.skipUnless(HAS_CRYPTO, "Install the approval extra to exercise signed execution gates")
 class GateTests(TemporaryCase):
     def test_plan_is_inert_and_requests_are_pending(self):
         plan = self.plan()
@@ -226,14 +292,14 @@ class GateTests(TemporaryCase):
     def test_one_receipt_cannot_substitute_for_both_stages(self):
         plan = self.plan(execute_branch=True)
         assumptions = self.receipt(plan, "assumptions")
-        with self.assertRaisesRegex(ValueError, "solve approval"):
+        with self.assertRaisesRegex(ValueError, "stage|scope"):
             execute(self.run_dir, assumptions, assumptions)
 
     def test_solve_approval_cannot_precede_assumption_confirmation(self):
         plan = self.plan(execute_branch=True)
         assumptions = self.receipt(plan, "assumptions")
         solve = self.receipt(plan, "solve", approved_at=plan["created_at"])
-        with self.assertRaisesRegex(ValueError, "follow assumption"):
+        with self.assertRaisesRegex(ValueError, "precedes|follow assumption"):
             execute(self.run_dir, assumptions, solve)
 
     def test_approval_before_plan_or_in_future_is_rejected(self):
@@ -241,7 +307,7 @@ class GateTests(TemporaryCase):
         times = [datetime.fromisoformat(plan["created_at"]) - timedelta(seconds=1),
                  datetime.now(timezone.utc) + timedelta(days=1)]
         for timestamp in times:
-            with self.subTest(timestamp=timestamp), self.assertRaisesRegex(ValueError, "plan creation and now"):
+            with self.subTest(timestamp=timestamp), self.assertRaisesRegex(ValueError, "time|plan|future"):
                 verify_receipt(self.receipt(plan, "assumptions", approved_at=timestamp.isoformat()), "assumptions", plan)
 
     def test_changed_model_dependency_case_and_driver_invalidate_plan(self):
@@ -278,10 +344,10 @@ class GateTests(TemporaryCase):
             result = execute(self.run_dir, assumptions, solve)
             self.assertEqual(result["status"], "execution_completed_engineering_review_required")
             self.assertTrue(result["comsol_solve_started"])
-            self.assertEqual(invoked.call_count, 2)
+            self.assertEqual(invoked.call_count, 4)
             with self.assertRaises(FileExistsError):
                 execute(self.run_dir, assumptions, solve)
-            self.assertEqual(invoked.call_count, 2)
+            self.assertEqual(invoked.call_count, 4)
         self.popen.assert_not_called()
         text = (self.run_dir / "report.md").read_text(encoding="utf-8")
         self.assertIn("| conservation | not_run |", text)
@@ -302,7 +368,7 @@ class GateTests(TemporaryCase):
         plan = self.plan(execute_branch=True)
 
         def failed_launch(argv, cwd, log, timeout):
-            if "compile" in Path(argv[0]).name:
+            if "compile" in Path(argv[0]).name or Path(log).parent.name == "inspection":
                 return self.fake_successful_invocation(argv, cwd, log, timeout)
             Path(log).write_text("SYNTHETIC launcher failed before Java entrypoint", encoding="utf-8")
             raise OSError("SYNTHETIC batch launch failure")
@@ -319,9 +385,10 @@ class GateTests(TemporaryCase):
     def test_model_changed_during_compilation_prevents_solve(self):
         plan = self.plan(execute_branch=True)
 
-        def modifying_compiler(*args):
-            value = self.fake_successful_invocation(*args)
-            self.model.write_bytes(b"SYNTHETIC model changed while compiling")
+        def modifying_compiler(argv, cwd, log, timeout):
+            value = self.fake_successful_invocation(argv, cwd, log, timeout)
+            if Path(log).parent.name == "results":
+                self.model.write_bytes(b"SYNTHETIC model changed while compiling")
             return value
 
         with patch("comsol_workflow.workflow.platform.system", return_value="Windows"), patch(
@@ -330,16 +397,17 @@ class GateTests(TemporaryCase):
             result = execute(self.run_dir, self.receipt(plan, "assumptions"), self.receipt(plan, "solve"))
             self.assertEqual(result["status"], "failed")
             self.assertFalse(result["comsol_solve_started"])
-            self.assertEqual(invoked.call_count, 1)
+            self.assertEqual(invoked.call_count, 3)
 
     def test_zero_exit_without_current_completion_marker_is_failure(self):
         plan = self.plan(execute_branch=True)
 
-        def missing_marker(*args):
-            value = self.fake_successful_invocation(*args)
-            marker = self.run_dir / "results/completed.ok"
-            if marker.exists():
-                marker.write_text("stale-synthetic-token")
+        def missing_marker(argv, cwd, log, timeout):
+            value = self.fake_successful_invocation(argv, cwd, log, timeout)
+            if Path(log).parent.name == "results" and "batch" in Path(argv[0]).name:
+                text = Path(log).read_text(encoding="utf-8")
+                Path(log).write_text(text.replace(f"WORKFLOW_COMPLETED {plan['completion_token']}",
+                                                  "WORKFLOW_COMPLETED stale-synthetic-token"), encoding="utf-8")
             return value
 
         with patch("comsol_workflow.workflow.platform.system", return_value="Windows"), patch(
@@ -347,7 +415,7 @@ class GateTests(TemporaryCase):
         ):
             result = execute(self.run_dir, self.receipt(plan, "assumptions"), self.receipt(plan, "solve"))
         self.assertEqual(result["status"], "failed")
-        self.assertIn("completion marker", result["error"])
+        self.assertIn("completion evidence", result["error"])
         self.assertIn("Status: **failed**", (self.run_dir / "report.md").read_text(encoding="utf-8"))
 
     def test_failed_compilation_is_not_reported_as_a_solve(self):

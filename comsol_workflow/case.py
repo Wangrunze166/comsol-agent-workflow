@@ -116,6 +116,9 @@ def validate(case, base):
             errors.append("execution.cores must be an integer from 1 to 256")
         if type(execution["timeout_seconds"]) is not int or not 1 <= execution["timeout_seconds"] <= 604800:
             errors.append("execution.timeout_seconds must be an integer from 1 to 604800")
+        interval = execution.get("recovery_interval_seconds")
+        if interval is not None and (type(interval) is not int or not 1 <= interval <= 3600):
+            errors.append("execution.recovery_interval_seconds must be an integer from 1 to 3600")
         exports = case["exports"]
         columns = set()
         if not exports:
@@ -151,6 +154,16 @@ def validate(case, base):
         for name, bounds in expected.get("bounds", {}).items():
             if name not in columns or len(bounds) != 2 or any(type(x) not in (int, float) or not math.isfinite(x) for x in bounds) or bounds[0] > bounds[1]:
                 errors.append(f"Invalid output bounds: {name}")
+        for kind, config in case.get("postprocess", {}).items():
+            if kind not in {"field_plot", "table"}:
+                errors.append(f"Unsupported postprocess kind: {kind}")
+                continue
+            filename = config["filename"]
+            extension = ".png" if kind == "field_plot" else ".csv"
+            if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*" + re.escape(extension), filename) or filename in {"metrics.csv"}:
+                errors.append(f"Unsafe or reserved postprocess filename: {filename}")
+            if kind == "field_plot" and not TAG.fullmatch(config["tag"]):
+                errors.append("Field plot tag must be a valid identifier")
     except (KeyError, TypeError, ValueError, SyntaxError) as exc:
         errors.append(f"Malformed or incomplete case: {exc}")
     return {"valid": not errors, "errors": errors, "warnings": warnings}

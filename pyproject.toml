@@ -4,11 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "comsol-agent-workflow"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reviewable engineering workflow and guarded COMSOL 6.3 runner"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 dependencies = []
+
+[project.optional-dependencies]
+approval = ["cryptography>=46"]
 
 [project.scripts]
 comsol-workflow = "comsol_workflow.cli:main"

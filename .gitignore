@@ -11,5 +11,8 @@ approvals/
 *.mphbin
 *.class
 *.log
+*.pem
+*.key
+*.receipt.json
 .env*
 !.env.example

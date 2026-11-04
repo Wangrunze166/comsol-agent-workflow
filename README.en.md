@@ -1,113 +1,114 @@
-![COMSOL Agent Workflow — reviewed models, human approval, reproducible runs](assets/hero.svg)
-
 # COMSOL Agent Workflow
 
-[中文](README.md) · **English** · [Documentation](docs/workflow.md) · [Examples](docs/demonstration.md) · [Issues](https://github.com/Wangrunze166/comsol-agent-workflow/issues/new/choose)
+![COMSOL Agent Workflow — reviewed models, human approval, reproducible runs](assets/hero.svg)
 
 [![Offline checks](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml/badge.svg)](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-087e8b.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3273ba.svg)](pyproject.toml)
-[![COMSOL 6.3 adapter](https://img.shields.io/badge/COMSOL-6.3%20adapter-526977.svg)](adapters/comsol63/README.md)
+[![COMSOL 6.3](https://img.shields.io/badge/COMSOL-6.3-a85b10.svg)](adapters/comsol63/README.md)
 
-**An engineering workflow for Codex, Claude Code and Cursor that turns a reviewed COMSOL model into a traceable simulation plan, an approved run and an evidence report.**
+[中文](README.md) · **English** · [Examples](docs/demonstration.md) · [Evidence](docs/validation-status.md) · [Issues](https://github.com/Wangrunze166/comsol-agent-workflow/issues/new/choose)
 
-The shared Agent Skill handles engineering context and review. A separate Windows executor targets COMSOL 6.3. The current executable path supports parameterized reruns of reviewed MPH files and real-valued global result exports. Geometry, physics, mesh and solver changes enter through a newly reviewed model.
+**A COMSOL engineering workflow for Codex, Claude Code and Cursor: review the model, inspect its inputs, obtain human signatures, and deliver a traceable calculation.**
 
-## What it does
+The shared Agent Skill handles engineering context and review. A separate Windows executor targets COMSOL 6.3. Its scope is parameterized reruns of reviewed MPH files; new geometry, physics and model families enter through dedicated builders or newly reviewed models.
 
-- **Prepare a reviewable case:** record sources, assumptions, units, parameters, model tags and acceptance criteria.
-- **Check before computing:** validate supported dimensions, value ranges, input files and expected output coordinates.
-- **Require two human decisions:** confirm engineering assumptions, then approve the exact solve plan. Input or executor changes invalidate the plan.
-- **Run the reviewed sequence:** generate and compile Java, load a model copy, clear saved solutions, execute the selected solver sequence and save new outputs.
-- **Keep the evidence:** preserve input fingerprints, approvals, logs, CSV results, the solved MPH and a report that distinguishes execution from engineering validation.
+**v0.2: the minimal heat plate was built locally. Native load-only inspection passed; geometry/mesh overrides and invalid study tags were rejected. A real solve awaits user signatures and has not yet been demonstrated.**
 
-![Workflow from source model through engineering review and solve approval to results and evidence](assets/workflow.svg)
+## Capabilities
 
-## Try it without COMSOL
+| Stage | Behavior |
+| --- | --- |
+| Input validation | Units, dimensions, ranges, sources and expected result coordinates |
+| Load-only inspection | `smoke` / `dry-run` loads the model and checks tags and references without solving or saving a new MPH |
+| Parameter scope | Java API inventory of geometry/mesh properties and parameter expressions; direct or indirect dependencies block a `physics_scalar` override |
+| Human approval | Separate `approve` command; Ed25519 receipts bind assumptions and the exact solve or resume action |
+| Execution evidence | Launcher and COMSOL logs, completion token, metrics CSV, output MPH and report; exit code zero alone is insufficient |
+| Recovery | A new plan from actual recovery files, using `loadRecovery` / `continueRun`; no silent restart from scratch |
+| Postprocessing | Real-valued global metrics, with optional PNG export of a configured field plot and a table with units |
 
-Python 3.10 or newer is required. The offline workflow uses the standard library and runs directly from the repository:
+The approval boundary depends on a **user-controlled signing key, protected trust anchor and trusted executor**. A TTY is an interaction check, not proof of human presence. Keep signing secrets outside agent access. A repository script cannot prevent bypass when the agent has the same unrestricted system privileges as the operator. See [approval security](docs/approval-security.md).
+
+## Architecture
+
+![Workflow from model sources through review and approval to execution evidence](assets/workflow.svg)
+
+| Layer | Responsibility | Entry point |
+| --- | --- | --- |
+| Shared Skill | Recover sources, organize engineering review, diagnosis and validation | [SKILL.md](skills/comsol-multiphysics/SKILL.md) |
+| Case and plan | Parameters, acceptance criteria, fingerprints and approval binding | [Case format](docs/case-format.md) |
+| COMSOL 6.3 executor | Native inspection, reviewed solver sequence, recovery and export | [Adapter](adapters/comsol63/README.md) |
+
+Changed inputs or execution code require a new plan and signatures. Solver completion remains separate from mesh independence, conservation and experimental validation.
+
+## Quick start
+
+Offline planning and CSV comparison require Python 3.10+. Signed approvals use the optional `cryptography` dependency.
 
 ```console
 git clone https://github.com/Wangrunze166/comsol-agent-workflow.git
 cd comsol-agent-workflow
 python -m comsol_workflow --help
-python -m unittest discover -s tests -v
 python -m comsol_workflow compare examples/offline/actual.csv examples/offline/reference.csv --coordinate time_s --atol 0.01 --rtol 0.001
-python -m comsol_workflow plan examples/thermoelectric-pid/case.json --out runs/offline-review
+python -m comsol_workflow plan examples/minimal-heat-plate/case.json --out runs/first-review
 ```
 
-The comparison uses **synthetic test data**. The last command creates a review bundle with pending approvals. Because the public example omits the MPH file and local COMSOL installation, the plan reports blocking conditions and stays `not_executed`. Use a new empty output directory for each plan.
+The CSV inputs are synthetic test data. Public examples omit MPH files, so the plan reports missing inputs and an unspecified COMSOL installation. It creates a review bundle, starts no solve and grants no approval. Use a new empty directory for each plan.
 
-The bundle contains `REVIEW.md`, `case.snapshot.json`, generated Java, `plan.json`, two pending approval templates and `report.md`. To install the optional `comsol-workflow` command, run `python -m pip install -e .`.
+For development checks and signing support:
 
-## Use it with your agent
+```console
+python -m pip install -e ".[approval]"
+python -m unittest discover -s tests -v
+```
 
-All three clients share [one authoritative Skill](skills/comsol-multiphysics/SKILL.md). The repository also includes `AGENTS.md`, `CLAUDE.md` and a Cursor rule.
+Real execution requires Windows, COMSOL 6.3, valid module licenses, a reviewed model and signed human approvals. Follow the [demonstration guide](docs/demonstration.md) to inspect the model before the operator approves assumptions and computation.
 
-For native project-local Skill discovery, choose **one** of these commands:
+## Minimal example: steady heat plate
+
+[minimal-heat-plate](examples/minimal-heat-plate/README.md) contains a readable Java builder and case manifest: a 10 × 5 mm 2D rectangle, 293.15 K on the left, 303.15 K on the right, insulated top/bottom and no internal source. Its analytic mean temperature is **298.15 K**.
+
+The builder uses coordinate selections and configures material, mesh, study and results without solving. Local build evidence confirms distinct left/right boundaries, 192 mesh elements and an empty solution. This new example tests the execution chain; it does not reproduce the original multiphysics project or establish a solve time below five minutes.
+
+## Engineering reference: thermoelectric PI control
+
+![Original conceptual thermoelectric assembly and staged airflow, thermal and PI control](assets/thermoelectric-case.svg)
+
+The retained manifests follow [COMSOL Application ID 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421): a 7-point stationary current sweep and 31 transient output times over 60 minutes. Airflow is solved first, then held fixed for the thermal calculation. Zero derivative gain makes this configuration **PI control**.
+
+The illustrations are original conceptual diagrams, not computed fields. Obtain authorized official models separately. Historical calculations are not counted as validation of this executor.
+
+## Evidence matrix
+
+| Evidence | Current boundary |
+| --- | --- |
+| Offline tests and CI | See the test workflow and [validation record](docs/validation-status.md); these do not prove COMSOL execution |
+| Minimal builder compilation and execution | Passed locally on COMSOL 6.3.0.290; saved with `sol1.isEmpty=true` |
+| New executor load-only smoke | Passed locally in 27.37 s including compilation; unsafe geometry/mesh overrides and invalid study tags rejected |
+| Signed approvals, scope blocking, recovery and optional exports | Implemented; offline checks and real application tests remain separate |
+| Complete real solve and numerical baseline | **Not yet completed** |
+| Mesh/time-step independence, conservation and experimental validation | **Not completed** |
+| Codex, Claude Code and Cursor | Shared Skill and project entry points; native loading has not been tested in every client |
+
+## Use with an agent
+
+Choose a client and copy the authoritative Skill into its project-local discovery directory:
 
 ```console
 python scripts/install_skill.py --client codex --project .
-python scripts/install_skill.py --client claude --project .
-python scripts/install_skill.py --client cursor --project .
 ```
 
-The installer copies the Skill into the selected client's project directory and refuses to overwrite an existing copy. Keep the workflow repository as the command working directory. Client discovery paths and API sources are documented in [Interface sources](docs/interface-sources.md).
+`--client` also accepts `claude` or `cursor`; existing copies are not overwritten. The repository provides `AGENTS.md`, `CLAUDE.md` and a Cursor rule. Ask the agent to recover engineering inputs, prepare a plan and perform load-only inspection. The operator signs decisions in a trusted environment.
 
-Example request:
+## Documentation and custom work
 
-> Follow skills/comsol-multiphysics/SKILL.md for this COMSOL case. Recover the engineering inputs and prepare a reviewable plan. Ask me to confirm the assumptions, then obtain approval before solving. Support every validation claim with evidence.
+- [Workflow](docs/workflow.md), [case format](docs/case-format.md) and [interface sources](docs/interface-sources.md)
+- [Model review template](templates/model-configuration.template.md) and [verification plan](templates/verification-plan.template.md)
+- [Contributing](CONTRIBUTING.md), [issues](https://github.com/Wangrunze166/comsol-agent-workflow/issues/new/choose) and [release steps](docs/release.md)
+- [Custom development](docs/commercialization.md): model onboarding, domain builders, solver diagnosis, team deployment and reproducible reports, scoped to explicit acceptance criteria.
 
-## Reference case: thermoelectric temperature control
-
-![Conceptual thermoelectric assembly and staged airflow, thermal and PI-control studies](assets/thermoelectric-case.svg)
-
-The example follows [COMSOL Application ID 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421): a stationary current sweep and a transient temperature-control study. It preserves several important distinctions:
-
-- Airflow is solved first and then held fixed during the thermal calculation.
-- The derivative gain is zero, so this configuration uses **PI control**.
-- The stationary case exports 7 current points; the transient case exports 31 times over 60 minutes.
-- A module heat-flow metric is not interchangeable with device heating power or cold-side cooling capacity.
-
-The graphics are original conceptual illustrations, **not computed fields or simulation results**. Public examples contain configuration metadata, not the official MPH files. Obtain an authorized model from its source and review its actual tags, selections and settings before execution. See the [demonstration guide](docs/demonstration.md).
-
-## Validation status
-
-| Evidence level | Recorded status |
-|---|---|
-| Offline tests | 36 tests passed locally on Windows with Python 3.14.6 |
-| GitHub CI | Windows/Linux × Python 3.10/3.13: all four environments passed |
-| COMSOL Java compilation | Passed with COMSOL Compile 6.3.0.290; generated code was not executed |
-| Three client installer paths | Copy and overwrite-rejection checks passed; native loading in all three clients has not been tested |
-| Real solve through this executor | **Not performed** |
-| Mesh/time-step independence, conservation and experimental validation | **Not performed** |
-
-See the [validation record](docs/validation-status.md) and [machine-readable evidence](docs/validation-evidence.json). The CI badge links to the current GitHub test result. Earlier calculations in the reference project are separate from validation of this executor.
-
-## Running a real case
-
-Actual execution requires Windows, COMSOL 6.3 and valid licenses for the model's modules. Start with a reviewed MPH, fill the [case configuration](docs/case-format.md), validate it and generate a plan with your installation path. Confirm the engineering assumptions and separately approve that exact solve before invoking `run`.
-
-This MVP does not automatically build arbitrary multiphysics models or prove that a model is physically correct. Its approval receipts are local audit records, not a multi-user authentication system. Field plots, complex-valued exports and new domain-specific builders need further adaptation. The [adapter guide](adapters/comsol63/README.md) documents the execution boundary.
-
-## Documentation
-
-Detailed engineering guides are currently in Chinese:
-
-- [Full workflow](docs/workflow.md) and [case format](docs/case-format.md)
-- [Model configuration review template](templates/model-configuration.template.md)
-- [Engineering verification plan](templates/verification-plan.template.md)
-- [Examples and execution steps](docs/demonstration.md)
-- [Interface sources](docs/interface-sources.md) and [presentation references](docs/presentation-references.md)
-
-## Contributing and support
-
-[Open an issue](https://github.com/Wangrunze166/comsol-agent-workflow/issues/new/choose) for a reproducible bug, model-adapter request or scoped improvement. Include the workflow version, COMSOL version, expected behavior and a minimal example you can share. Keep private models, license information and customer data out of public reports.
-
-Read the [contribution guide](CONTRIBUTING.md). For code changes, run `python -m unittest discover -s tests -v` and describe the evidence behind any claimed COMSOL behavior. Keep offline tests, compilation and real solver validation distinct.
-
-Custom work can include model onboarding, domain-specific builders, solver diagnosis, team deployment and reproducible engineering reports. See [service scope and delivery criteria](docs/commercialization.md), or open a [scoped request](https://github.com/Wangrunze166/comsol-agent-workflow/issues/new/choose).
+Engineering and presentation references are **FreeCAD, Taichi, MuJoCo and Open3D**. Each exceeded 10K GitHub stars when checked through the API on 2026-11-04. See [counts and pinned source links](docs/high-star-engineering-references.md) and [presentation references](docs/presentation-references.md). Project text and illustrations are original.
 
 ## License
 
-Original project code, documentation and illustrations are available under [MIT](LICENSE). COMSOL software, trademarks, official models and third-party materials retain their respective terms. This is an independent project and is not affiliated with or endorsed by COMSOL.
+Original code, Skills, templates and illustrations use [MIT](LICENSE). COMSOL software, modules, trademarks, official models and customer materials retain their respective terms and are not distributed here. This independent project is not affiliated with or endorsed by COMSOL.
