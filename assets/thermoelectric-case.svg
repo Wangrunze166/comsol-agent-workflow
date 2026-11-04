@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="650" viewBox="0 0 1440 650" role="img" aria-label="thermoelectric case">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#087e8b"/></marker></defs>
+<g font-family="Segoe UI, Arial, sans-serif"><rect x="0" y="0" width="1440" height="650" rx="0" fill="#f7fafb" stroke="none"/>
+<text x="52" y="65" fill="#142d3e" font-size="32" font-weight="650" >Reference case: thermoelectric temperature control</text>
+<text x="52" y="104" fill="#526977" font-size="19" font-weight="400" >A staged coupling example, with the modeling assumptions kept visible.</text>
+<polygon points="102.6,464.29999999999995 362.5,362.6 554.5999999999999,447.35 294.7,549.05" fill="#eaf4f5" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="102.6,464.29999999999995 294.7,549.05 294.7,568.26 102.6,483.51" fill="#c8e3e8" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="294.7,549.05 554.5999999999999,447.35 554.5999999999999,466.56 294.7,568.26" fill="#bedde5" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="128.59,455.26 272.1,517.41 272.1,424.75 128.59,362.6" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="272.1,517.41 281.14,514.02 281.14,421.36 272.1,424.75" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="155.70999999999998,445.09 299.21999999999997,507.24 299.21999999999997,414.58 155.70999999999998,352.43" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="299.21999999999997,507.24 308.26,503.85 308.26,411.19 299.21999999999997,414.58" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="182.82999999999998,434.91999999999996 326.34,497.07 326.34,404.40999999999997 182.82999999999998,342.26" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="326.34,497.07 335.38,493.67999999999995 335.38,401.02 326.34,404.40999999999997" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="209.95,424.75 353.46,486.9 353.46,394.24 209.95,332.09" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="353.46,486.9 362.5,483.51 362.5,390.85 353.46,394.24" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="237.07,414.58 380.58,476.73 380.58,384.07 237.07,321.92" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="380.58,476.73 389.61999999999995,473.34 389.61999999999995,380.68 380.58,384.07" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="264.18999999999994,404.40999999999997 407.7,466.56 407.7,373.9 264.18999999999994,311.75" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="407.7,466.56 416.73999999999995,463.16999999999996 416.73999999999995,370.51 407.7,373.9" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="291.30999999999995,394.24 434.82,456.39 434.82,363.73 291.30999999999995,301.58" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="434.82,456.39 443.85999999999996,453.0 443.85999999999996,360.34 434.82,363.73" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="318.42999999999995,384.07 461.93999999999994,446.21999999999997 461.93999999999994,353.56 318.42999999999995,291.41" fill="#f9fcfc" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="461.93999999999994,446.21999999999997 470.97999999999996,442.83 470.97999999999996,350.17 461.93999999999994,353.56" fill="#b7dce1" stroke="#087e8b" stroke-width="1.5"/>
+<polygon points="254.01999999999998,254.12 348.94,217.96 430.29999999999995,252.99 335.38,290.28" fill="#d8e9fa" stroke="#3273ba" stroke-width="1.5"/>
+<polygon points="254.01999999999998,254.12 335.38,290.28 335.38,314.01 254.01999999999998,277.85" fill="#b6d3ed" stroke="#3273ba" stroke-width="1.5"/>
+<polygon points="335.38,290.28 430.29999999999995,252.99 430.29999999999995,276.72 335.38,314.01" fill="#83b7df" stroke="#3273ba" stroke-width="1.5"/>
+<polygon points="299.21999999999997,189.71 345.54999999999995,171.63000000000002 383.96999999999997,188.58 337.64,206.66000000000003" fill="#f7d9b5" stroke="#a85b10" stroke-width="1.5"/>
+<polygon points="299.21999999999997,189.71 337.64,206.66000000000003 337.64,220.22000000000003 299.21999999999997,203.27" fill="#ecc398" stroke="#a85b10" stroke-width="1.5"/>
+<polygon points="337.64,206.66000000000003 383.96999999999997,188.58 383.96999999999997,202.14000000000001 337.64,220.22000000000003" fill="#ddb080" stroke="#a85b10" stroke-width="1.5"/>
+<text x="81" y="608" fill="#526977" font-size="14" font-weight="400" >Conceptual assembly · not to scale · no computed field shown</text>
+<text x="665" y="176" fill="#087e8b" font-size="16" font-weight="700" >01  STEADY FLOW</text>
+<text x="665" y="213" fill="#142d3e" font-size="21" font-weight="400" >Solve the airflow; hold the velocity field fixed.</text>
+<line x1="665" y1="242" x2="1345" y2="242" stroke="#d1e0e6" stroke-width="1" />
+<text x="665" y="284" fill="#3273ba" font-size="16" font-weight="700" >02  THERMAL SYSTEM + PI CONTROL</text>
+<text x="665" y="321" fill="#142d3e" font-size="21" font-weight="400" >Heat transfer ↔ lumped thermoelectric module</text>
+<text x="665" y="355" fill="#142d3e" font-size="21" font-weight="400" >Device temperature → PI controller → current</text>
+<line x1="665" y1="386" x2="1345" y2="386" stroke="#d1e0e6" stroke-width="1" />
+<text x="665" y="429" fill="#087e8b" font-size="16" font-weight="700" >03  TWO REVIEWABLE STUDIES</text>
+<text x="665" y="466" fill="#142d3e" font-size="21" font-weight="400" >Stationary: 7 current points, 0.5–3.5 A</text>
+<text x="665" y="502" fill="#142d3e" font-size="21" font-weight="400" >Transient: 31 output times, 0–60 min</text>
+<text x="665" y="556" fill="#526977" font-size="17" font-weight="400" >Derivative gain is zero: this configuration is PI.</text>
+<text x="665" y="584" fill="#526977" font-size="17" font-weight="400" >Frozen flow is not fully transient two-way coupling.</text></g></svg>

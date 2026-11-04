@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comsol-agent-workflow"
+version = "0.1.0"
+description = "Reviewable engineering workflow and guarded COMSOL 6.3 runner"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = []
+
+[project.scripts]
+comsol-workflow = "comsol_workflow.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["comsol_workflow*"]
+
+[tool.setuptools.package-data]
+comsol_workflow = ["case.template.json"]

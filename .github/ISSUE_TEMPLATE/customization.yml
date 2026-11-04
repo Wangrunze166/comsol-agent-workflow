@@ -1,0 +1,31 @@
+name: Model integration or customization / 模型接入与定制
+description: Describe a bounded engineering workflow or service request.
+title: "[Integration] "
+body:
+  - type: markdown
+    attributes:
+      value: "This issue is public. Share only a nonconfidential overview; do not upload client models or sensitive data. / 本页面公开，仅提供可公开概况。"
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Engineering scenario / 工程场景
+      description: Physics, study type, existing model status, and the task you want automated.
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Desired deliverables and acceptance criteria / 交付与验收
+      description: Required outputs, operating range, reference evidence, and acceptance criteria.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment / 环境
+      placeholder: COMSOL version, OS, AI client; no license keys
+  - type: textarea
+    id: scope
+    attributes:
+      label: Constraints / 范围与约束
+      description: Timeline, compute limits, and whether this is an open-source contribution or customization inquiry.

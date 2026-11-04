@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "case_id": "new-case",
+  "title": "待确认的工程模型",
+  "provenance": {
+    "kind": "user_model",
+    "sources": []
+  },
+  "model": {
+    "path": "private/model.mph",
+    "comsol_version": "6.3",
+    "study_tag": "std1",
+    "solver_tag": "sol1",
+    "dataset_tag": "dset1",
+    "clear_solution_tags": [
+      "sol1",
+      "sol2"
+    ],
+    "dependencies": []
+  },
+  "parameters": [],
+  "constraints": [],
+  "engineering": {
+    "dimension": 3,
+    "geometry": {
+      "policy": "preserve-reviewed-mph",
+      "description": ""
+    },
+    "materials": [],
+    "physics": [],
+    "couplings": [],
+    "boundary_conditions": [],
+    "mesh": {
+      "policy": "preserve-reviewed-mph",
+      "description": ""
+    },
+    "solver": {
+      "policy": "preserve-reviewed-mph",
+      "description": ""
+    },
+    "assumptions": [],
+    "acceptance": [],
+    "unresolved": [
+      "需要输入真实几何/物理/材料/边界/网格/求解器/输出要求。"
+    ]
+  },
+  "execution": {
+    "cores": 4,
+    "timeout_seconds": 3600
+  },
+  "exports": [],
+  "results": {
+    "coordinate": "",
+    "expected_coordinates": [],
+    "coordinate_atol": 1e-08,
+    "reference_csv": null,
+    "atol": 0.01,
+    "rtol": 0.001,
+    "bounds": {}
+  },
+  "validation": {
+    "mesh_independence": "not_run",
+    "time_step_independence": "not_run",
+    "conservation": "not_run",
+    "experimental_validation": "not_run",
+    "evidence": {}
+  }
+}

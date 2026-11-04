@@ -1,0 +1,9 @@
+---
+description: Apply the repository COMSOL engineering workflow when preparing or executing simulation cases.
+globs:
+alwaysApply: false
+---
+
+For COMSOL work, read `AGENTS.md` and `skills/comsol-multiphysics/SKILL.md` from the repository root. Use those instructions as the authoritative workflow and keep version-specific execution in the COMSOL 6.3 adapter.
+
+Engineering assumptions and actual solving each require a human decision tied to the reviewed plan. Report offline checks, compilation, real solving, reproduction, and engineering validation separately.

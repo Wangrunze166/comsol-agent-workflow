@@ -1,0 +1,29 @@
+name: Bug report / 问题反馈
+description: Report a reproducible workflow or adapter problem.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Describe the issue without customer models, license information, credentials, or personal paths."
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed behavior / 预期与实际行为
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction / 最小复现
+      description: Commands and a synthetic case, if possible. State whether COMSOL was actually launched.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Versions / 运行环境
+      placeholder: OS, Python, COMSOL version and patch, project commit
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized error or log excerpt / 脱敏错误信息

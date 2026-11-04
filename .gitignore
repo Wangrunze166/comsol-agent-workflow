@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+runs/
+private/
+approvals/
+*.mph
+*.mphbin
+*.class
+*.log
+.env*
+!.env.example

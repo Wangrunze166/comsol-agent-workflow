@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "case_id": "thermoelectric-pi-transient",
+  "title": "热电模块 PI 温控：60 min 瞬态复算计划",
+  "provenance": {
+    "kind": "official_example",
+    "sources": [
+      "https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421"
+    ],
+    "status": "Reference configuration recovered; model must be supplied locally; this workflow has not solved it."
+  },
+  "model": {
+    "path": "private/reviewed-transient.mph",
+    "comsol_version": "6.3",
+    "study_tag": "std1",
+    "solver_tag": "sol1",
+    "dataset_tag": "dset2",
+    "clear_solution_tags": [
+      "sol1",
+      "sol2"
+    ],
+    "dependencies": []
+  },
+  "parameters": [],
+  "constraints": [],
+  "engineering": {
+    "dimension": 3,
+    "geometry": {
+      "policy": "preserve-reviewed-mph",
+      "description": "官方案例几何：空气域200×400×120 mm，底座100×100×4 mm；8片壳翅片，高38 mm、热学厚2.5 mm；器件15×15×5 mm；TEM40×40×4.5 mm，接触层2.5 mm。以实际MPH及命名选择为准。"
+    },
+    "materials": [
+      {
+        "name": "Air",
+        "properties": "温度相关物性；沿用模型函数及适用范围"
+      },
+      {
+        "name": "Aluminum 3003-H18",
+        "properties": "k=155 W/(m*K); rho=2730 kg/m^3; Cp=893 J/(kg*K)"
+      },
+      {
+        "name": "Copper",
+        "properties": "k=400 W/(m*K); rho=8960 kg/m^3; Cp=385 J/(kg*K)"
+      }
+    ],
+    "physics": [
+      {
+        "component": "comp1",
+        "tag": "ht",
+        "type": "HeatTransferInSolidsAndFluids"
+      },
+      {
+        "component": "comp1",
+        "tag": "spf",
+        "type": "LaminarFlow"
+      },
+      {
+        "component": "comp1",
+        "tag": "lts",
+        "type": "LumpedThermalSystem"
+      },
+      {
+        "component": "comp2",
+        "tag": "ge1",
+        "type": "GlobalEquations"
+      }
+    ],
+    "couplings": [
+      {
+        "source": "spf",
+        "target": "ht",
+        "mode": "先求稳态流场，再固定流场求传热；非全瞬态双向耦合"
+      },
+      {
+        "source": "ht",
+        "target": "lts",
+        "mode": "LumpedSystemConnector连接热表面和TEM外部端子"
+      },
+      {
+        "source": "device average temperature",
+        "target": "TEM current",
+        "mode": "PI反馈+偏置+0.01至4 A限幅，kD=0"
+      }
+    ],
+    "boundary_conditions": [
+      {
+        "selection": "inlet: recover named selection from reviewed MPH",
+        "condition": "流入0.5 m/s，20 degC"
+      },
+      {
+        "selection": "outlet: recover named selection from reviewed MPH",
+        "condition": "流动出口，ConvectiveOutflow"
+      },
+      {
+        "selection": "outer slip walls and internal fin walls",
+        "condition": "沿用原模型；几何变更后重新核验覆盖和重叠"
+      },
+      {
+        "selection": "TEM hot/cold connector surfaces",
+        "condition": "热网络端子与表面选择必须匹配"
+      },
+      {
+        "selection": "electronic device domain",
+        "condition": "10 min后平滑开启4 W，过渡宽度2 s"
+      }
+    ],
+    "mesh": {
+      "policy": "preserve-reviewed-mph",
+      "description": "继承原模型mesh1；导出Java不足以恢复网格细节。未进行网格独立性验证。"
+    },
+    "solver": {
+      "policy": "preserve-reviewed-mph",
+      "description": "继承std1/sol1完整序列：前置稳态流场，然后瞬态热学和控制积分变量；0至3600 s每120 s输出。容差、内部时间步和分组以MPH审查为准。"
+    },
+    "reference_parameters": [
+      {
+        "name": "I_max",
+        "value": 4,
+        "unit": "A",
+        "quantity": "current"
+      },
+      {
+        "name": "Q_max",
+        "value": 40,
+        "unit": "W",
+        "quantity": "power"
+      },
+      {
+        "name": "dT_max",
+        "value": 70,
+        "unit": "K",
+        "quantity": "temperature_difference"
+      },
+      {
+        "name": "R",
+        "value": 2,
+        "unit": "ohm",
+        "quantity": "resistance"
+      },
+      {
+        "name": "k_P",
+        "value": -0.05,
+        "unit": "A/K",
+        "quantity": "pi_proportional_gain"
+      },
+      {
+        "name": "k_I",
+        "value": -0.005,
+        "unit": "A/(K*s)",
+        "quantity": "pi_integral_gain"
+      },
+      {
+        "name": "T_set",
+        "value": 6.5,
+        "unit": "degC",
+        "quantity": "absolute_temperature"
+      }
+    ],
+    "assumptions": [
+      "使用官方案例完整MPH；所有几何、材料、边界选择、网格与求解器必须由工程师在6.3中审阅。",
+      "流场固定，kD=0；不是全瞬态双向热流耦合，也不是具有微分作用的PID。",
+      "原导出kD的单位写法不用于通用PID推导；修改控制器前单独核查控制方程和增益量纲。",
+      "parameters为空表示不覆盖模型参数；reference_parameters仅是审阅摘要，执行器不会把它们应用到模型。",
+      "两分钟输出点不能直接保证捕捉峰值或给出精确调节时间；需要时制定更密采样的新计划。",
+      "本机/模型6.3补丁版本差异需要记录；参考案例历史实测不证明新执行器通过。"
+    ],
+    "acceptance": [
+      "输出31行且时间坐标严格等于0:120:3600 s；所有指标有限。",
+      "若提供参考CSV，则同坐标逐点比较并记录atol与rtol；默认容差仅供工程师审阅。",
+      "TEM热流率仅解释为原表达式定义的热流率，不等同器件发热功率或单独冷端制冷量。",
+      "另外审查残差、温度场、能量守恒、网格/时间步敏感性；未做的检查保持未验证。"
+    ],
+    "unresolved": []
+  },
+  "execution": {
+    "cores": 4,
+    "timeout_seconds": 3600
+  },
+  "exports": [
+    {
+      "name": "time_s",
+      "expression": "t",
+      "unit": "s",
+      "quantity": "time"
+    },
+    {
+      "name": "device_degC",
+      "expression": "comp1.dom1",
+      "unit": "degC",
+      "quantity": "absolute_temperature"
+    },
+    {
+      "name": "TEM_heat_W",
+      "expression": "comp1.lts.TEM1.P",
+      "unit": "W",
+      "quantity": "power"
+    },
+    {
+      "name": "TEM_deltaT_K",
+      "expression": "comp1.lts.TEM1.DT",
+      "unit": "K",
+      "quantity": "temperature_difference"
+    },
+    {
+      "name": "current_A",
+      "expression": "comp2.u_in_ctrl",
+      "unit": "A",
+      "quantity": "current"
+    },
+    {
+      "name": "device_power_W",
+      "expression": "comp1.dom2",
+      "unit": "W",
+      "quantity": "power"
+    }
+  ],
+  "results": {
+    "coordinate": "time_s",
+    "expected_coordinates": [
+      0,
+      120,
+      240,
+      360,
+      480,
+      600,
+      720,
+      840,
+      960,
+      1080,
+      1200,
+      1320,
+      1440,
+      1560,
+      1680,
+      1800,
+      1920,
+      2040,
+      2160,
+      2280,
+      2400,
+      2520,
+      2640,
+      2760,
+      2880,
+      3000,
+      3120,
+      3240,
+      3360,
+      3480,
+      3600
+    ],
+    "coordinate_atol": 1e-08,
+    "reference_csv": null,
+    "atol": 0.01,
+    "rtol": 0.001,
+    "bounds": {
+      "current_A": [
+        0.0099,
+        4.0001
+      ]
+    }
+  },
+  "validation": {
+    "mesh_independence": "not_run",
+    "time_step_independence": "not_run",
+    "conservation": "not_run",
+    "experimental_validation": "not_run",
+    "evidence": {}
+  }
+}

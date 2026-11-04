@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-04",
+  "version": "0.1.0",
+  "platform_tested": "Windows",
+  "python_tested": "3.14.6",
+  "offline_tests": {
+    "count": 36,
+    "passed": true,
+    "raw_log_sha256": "acdb7d40c48ab3858a11b6028e65d653dc3998903b8256d86e05a2615cc82281"
+  },
+  "command_checks": {
+    "count": 13,
+    "all_passed": true
+  },
+  "comsol_java_compile": {
+    "tool_file_version": "6.3.0.290",
+    "exit_code": 0,
+    "includes_parameter_override_branch": true,
+    "artifact_hashes": {
+      "WorkflowDriver.java": "b0e1307515073d905a2db1ba57e609c9130294a55af72f7444cc4c9bdfe36225",
+      "WorkflowDriver.class": "1772e94d98c15a56ac9961e318776c1360c062a0767fd897ea616fc5c1445626",
+      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "skill_forward_test": "missing_model_review_bundle_created_with_both_approvals_false",
+  "native_client_loading_tested": false,
+  "github_ci_executed": false,
+  "new_workflow_comsol_solve_executed": false,
+  "engineering_validation_executed": false,
+  "real_case_pending_approvals_rejected": true,
+  "executor_code_fingerprints": {
+    "__init__.py": "79709742c501af239c81a8c596e7c7f425c7c9b3e70d2ca7eddd3f86c3a90d32",
+    "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "case.py": "71582c7924ef29a9f9f2336b33991259f349a090537da925a443c4b747033be2",
+    "cli.py": "25aaac75f89b76f06dae602bc9a85a81ce805cbe4c1697cf6adead93720c0122",
+    "comsol63.py": "608b5e1b887dd3f66cbec6d58bdd37f8365f0bf944d5a1299009c69b7ad280b6",
+    "results.py": "0683f805c294b0affbd960805fd921cf21d5aa8211f5e1e9786578e282055621",
+    "units.py": "170fcc03a67ea963e478d9650547635636b2325d97671caeaec1a791fb5998c3",
+    "workflow.py": "211002ecfe958c38c84673bd3cbbd1d4197ed6da8b5941178657f4fe84623036"
+  }
+}
