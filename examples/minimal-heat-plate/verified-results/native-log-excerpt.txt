@@ -1,0 +1,4 @@
+# Selected native launcher lines; private paths and recovery payloads omitted.
+COMSOL_VERSION COMSOL Multiphysics 6.3 (开发版本: 290)
+WORKFLOW_SOLVE_BEGIN 2114c76ccb234d79806fe9110a383cc2
+WORKFLOW_COMPLETED 2114c76ccb234d79806fe9110a383cc2 rows=1

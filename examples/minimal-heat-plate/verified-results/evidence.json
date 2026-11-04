@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-04",
+  "comsol_version": "6.3.0.290",
+  "model": "minimal-heat-plate",
+  "plan_digest": "8f798126a356c408c785ad74c3fa27a3e2c61cc332de38a0b731ea5623f18947",
+  "completion_token": "2114c76ccb234d79806fe9110a383cc2",
+  "status": "execution_completed_engineering_review_required",
+  "human_signed_approvals_verified": true,
+  "signed_receipts_archived_byte_identical": true,
+  "all_result_hashes_verified": true,
+  "result_file_count": 15,
+  "run_elapsed_seconds": 36.913876,
+  "preflight_elapsed_seconds": 32.711377,
+  "compute_stages_total_seconds_excluding_human_input": 69.625253,
+  "compile_seconds": 7.364423799999713,
+  "batch_seconds_including_startup_solve_export": 29.484974499999225,
+  "metrics": {
+    "Tmean_K": 298.1500000000019,
+    "analytic_mean_K": 298.15,
+    "absolute_error_K": 1.9326762412674725e-12,
+    "acceptance_atol_K": 0.001,
+    "passed": true
+  },
+  "image": {
+    "file": "../../../assets/minimal-heat-plate-temperature.png",
+    "dimensions": [
+      1600,
+      1000
+    ],
+    "verified": true
+  },
+  "table_matches_metrics": true,
+  "source_mph_sha256": "ca7c161b128e9e039fc1d5cd05c33542b54f489a9366d15ceb107d134b040afd",
+  "private_original_artifact_sha256": {
+    "assumptions.receipt.json": "e305daf5ae5eed0f96b46817197f9ce39b42d624419304fbef3077f4749d5f41",
+    "batch.log": "f2d4fac8339a00125a4207a3a626324e1bcfebcd8620a4e36c4efa131994c3be",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "completed.ok": "0a384be99280fe2eb530c36e984c50b12664657c642d1eca94df39ed4269af08",
+    "global-results.csv": "d165cb510ad9c9b239136aed4ba4aec3259b16b543c3127769571d1b6670e788",
+    "launcher.log": "51f5d0ea95b2838f22d634c2af8319ce5c41f4a98d4b9cb95245009ba9d17f81",
+    "metrics.csv": "11411ecb7e093382065280a70d03b57a671e01b040931653c7bf89765e403ffe",
+    "progress.log": "c5a74c3f684505dca9daff867f093f64d2855b758d4dd8fd695dd09e25f7cfdb",
+    "recovery-model-path.txt": "36d1e4fc98d2437060d7775951807ffbf278906ea32f7fe0a5196e52e4058bc7",
+    "solve.receipt.json": "ac6622bdd0401b1e03ebf85865f241d9deada1da0b29b12368b42140368a866b",
+    "solved.mph": "0c74a1ed99275da41e498db0b5508e66c4d6373c0f628396a7bd8ab55d5b0bc5",
+    "solved.mph.recovery": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "solved.mph.status": "a0380270e87338e2a3101fb1249e9d7cce90aa800ac458ce7e3a86d89c630cec",
+    "solved_workflow.mph": "fefc006d48009a00fed2a8e13814ed5ca1470288c4b6afa7bc1bebd4c8b7ad70",
+    "temperature.png": "9494def0536e617a9b2fc481cd6d4c21cbbbe2695da8fb1322a271cbeb95caec"
+  },
+  "log_layout": {
+    "batch.log": "Native batch header and invocation; retained privately",
+    "launcher.log": "Current-run begin/completion token and data payloads; retained privately",
+    "progress.log": "Native solver progress and iteration record; retained privately"
+  },
+  "real_interrupted_resume_verified": false,
+  "recovery_note": "COMSOL removed recovery contents after this successful run; no interruption or continuation was tested.",
+  "limits": [
+    "A single-field analytic verification example, not a multiphysics validation.",
+    "Mesh independence, conservation and experimental validation are not established.",
+    "Raw receipts, models and machine-specific logs stay private; public artifacts retain numerical data and hashes."
+  ],
+  "executed_driver_sha256": {
+    "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+    "WorkflowDriver.class": "8ad534bb724ba11cd66549fa8667977fe725953b20bcf3cce5ab923b9e1c159d"
+  },
+  "review_bundle_sha256": {
+    "case.snapshot.json": "a2c9b6dd8785d0261ee1047e36e5011327c99125c833ed79586553287f4dd357",
+    "WorkflowDriver.java": "3c8abea57ebf723d676335dd97a1a5686c9699f8f17b57a0016d3365d19a47d7",
+    "SmokeDriver.java": "9d0c91ed1df899adde5a74a1cf771d0d448d0a24c23522e841af27363864e8ac",
+    "REVIEW.md": "1ef125def7d016919a7adb80fc2e2b25196df973794227658368adbbff89df02"
+  }
+}

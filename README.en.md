@@ -13,7 +13,7 @@
 
 The shared Agent Skill handles engineering context and review. A separate Windows executor targets COMSOL 6.3. Its scope is parameterized reruns of reviewed MPH files; new geometry, physics and model families enter through dedicated builders or newly reviewed models.
 
-**v0.2: the minimal heat plate was built locally. Native load-only inspection passed; geometry/mesh overrides and invalid study tags were rejected. A real solve awaits user signatures and has not yet been demonstrated.**
+**v0.2 completed a real local heat-plate solve: both user Ed25519 approvals verified, inspection and execution took about 69.63 seconds combined, and the mean temperature matched the analytic solution.** This demonstrates the single-physics execution chain, not full multiphysics or engineering validation.
 
 ## Capabilities
 
@@ -68,7 +68,13 @@ Real execution requires Windows, COMSOL 6.3, valid module licenses, a reviewed m
 
 [minimal-heat-plate](examples/minimal-heat-plate/README.md) contains a readable Java builder and case manifest: a 10 × 5 mm 2D rectangle, 293.15 K on the left, 303.15 K on the right, insulated top/bottom and no internal source. Its analytic mean temperature is **298.15 K**.
 
-The builder uses coordinate selections and configures material, mesh, study and results without solving. Local build evidence confirms distinct left/right boundaries, 192 mesh elements and an empty solution. This new example tests the execution chain; it does not reproduce the original multiphysics project or establish a solve time below five minutes.
+![Steady heat-plate temperature field exported by the local COMSOL run, 293.15 K on the left and 303.15 K on the right](assets/minimal-heat-plate-temperature.png)
+
+*Actual 1600 × 1000 PNG exported by COMSOL 6.3.0.290: 293.15 K at the left boundary and 303.15 K at the right. This is the heat-plate result, not evidence of multiphysics validation.*
+
+The builder first saved an unsolved model. After the user signed the assumptions and solve approvals, the executor calculated **298.1500000000019 K** for the mean temperature: an absolute analytic error of about **1.93 × 10⁻¹² K**, below the 0.001 K threshold.
+
+Preflight inspection took **32.711377 s** and the execution stage **36.913876 s**, totaling **69.625253 s**, including each stage's compilation and batch process but excluding human input time. Original logs, token, signed receipts, metrics, table, PNG and new MPH were retained. [Measured metrics](examples/minimal-heat-plate/verified-results/metrics.csv) · [Table with units](examples/minimal-heat-plate/verified-results/global-results.csv). This single local measurement is not a runtime guarantee for other models or machines.
 
 ## Engineering reference: thermoelectric PI control
 
@@ -76,7 +82,7 @@ The builder uses coordinate selections and configures material, mesh, study and 
 
 The retained manifests follow [COMSOL Application ID 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421): a 7-point stationary current sweep and 31 transient output times over 60 minutes. Airflow is solved first, then held fixed for the thermal calculation. Zero derivative gain makes this configuration **PI control**.
 
-The illustrations are original conceptual diagrams, not computed fields. Obtain authorized official models separately. Historical calculations are not counted as validation of this executor.
+The thermoelectric illustration in this section is an original conceptual diagram, not a computed field. Obtain authorized official models separately. Historical calculations are not counted as validation of this executor.
 
 ## Evidence matrix
 
@@ -84,9 +90,10 @@ The illustrations are original conceptual diagrams, not computed fields. Obtain 
 | --- | --- |
 | Offline tests and CI | See the test workflow and [validation record](docs/validation-status.md); these do not prove COMSOL execution |
 | Minimal builder compilation and execution | Passed locally on COMSOL 6.3.0.290; saved with `sol1.isEmpty=true` |
-| New executor load-only smoke | Passed locally in 27.37 s including compilation; unsafe geometry/mesh overrides and invalid study tags rejected |
-| Signed approvals, scope blocking, recovery and optional exports | Implemented; offline checks and real application tests remain separate |
-| Complete real solve and numerical baseline | **Not yet completed** |
+| New executor load-only smoke | This signed plan's preflight passed in 32.711377 s; unsafe geometry/mesh overrides and invalid study tags were separately rejected in native tests |
+| User approvals and result exports | Both real Ed25519 receipts verified; PNG, metrics, table with units and new MPH generated |
+| Minimal real solve and numerical baseline | **Passed**; mean 298.1500000000019 K, absolute error about 1.93 × 10⁻¹² K |
+| Interrupted-run recovery | Compilation and simulated tests only; **real interruption/recovery remains unverified**; this successful run's recovery directory was cleaned up |
 | Mesh/time-step independence, conservation and experimental validation | **Not completed** |
 | Codex, Claude Code and Cursor | Shared Skill and project entry points; native loading has not been tested in every client |
 
