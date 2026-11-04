@@ -210,7 +210,7 @@ class SignedApprovalTests(unittest.TestCase):
         with patch.object(approvals, "_require_tty"), patch("builtins.input", side_effect=["TEST OPERATOR", "TEST ONLY", phrase]), \
              patch.object(approvals.getpass, "getpass", return_value=self.password.decode()), patch("builtins.print"):
             result = approvals.approve_interactive(self.plan, "assumptions", self.private_path, path, self.public_path)
-        self.assertEqual(result["path"], str(path))
+        self.assertEqual(result["path"], str(path.resolve()))
         self.assertEqual(self.verify(path)["approved_by"], "TEST OPERATOR")
 
     def test_declining_confirmation_writes_nothing(self):

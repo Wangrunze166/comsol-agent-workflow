@@ -7,7 +7,7 @@
   "offline_tests": {
     "count": 96,
     "passed": true,
-    "raw_log_sha256": "e6baf7671679ee2967799ba1c35f548a442ec1e8d2070d84292412be940b1eb1"
+    "raw_log_sha256": "bcb8fc5671c7c9092da65cf6423f361d1485cb513d497ac4265175ce21d4a00e"
   },
   "minimal_builder": {
     "comsol_version": "6.3.0.290",
