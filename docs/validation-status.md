@@ -15,7 +15,7 @@
 | 恢复快照/失败不回退 | 回归通过 | 文件哈希与文件集绑定，新确认和 resume 签名；真实中断续算未测 |
 | 完整真实求解、实际 PNG/表格 | **待用户签署后执行** | 目标为最小导热板平均温度298.15 K、误差≤0.001 K；尚无实测求解耗时和结果 |
 | 工程验证 | **未执行** | 网格/时间步独立性、守恒和实验有效性不可从软件检查推导 |
-| GitHub CI | 当前修订待检查 | 结果须绑定提交；旧版通过不视为新版通过 |
+| GitHub CI | **四个环境全部通过** | Windows/Linux × Python 3.10/3.13，各96项；[运行记录](https://github.com/Wangrunze166/comsol-agent-workflow/actions/runs/41833464791)，代码基线 `7f222ca` |
 | 三客户端 | 通用入口与安装脚本已有 | 不声称已在Codex、Claude Code、Cursor三个原生客户端逐一完成真实任务 |
 
 版本化、去除私人路径的文件摘要见 [validation-evidence.json](validation-evidence.json)。原始 native batch/launcher/progress 日志、MPH 和计划保存在私有目录；未把用户名、私人路径、签名身份或许可证加入公开包。

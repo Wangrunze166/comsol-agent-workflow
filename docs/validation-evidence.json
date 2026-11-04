@@ -164,7 +164,18 @@
   "real_interrupted_resume_verified": false,
   "engineering_validation_executed": false,
   "github_ci": {
-    "status": "pending_current_revision"
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "7f222cab37b95abefb5951abc5ce02db00bd0c0f",
+    "run_id": 41833464791,
+    "url": "https://github.com/Wangrunze166/comsol-agent-workflow/actions/runs/41833464791",
+    "environments": [
+      "windows-latest / 3.10",
+      "windows-latest / 3.13",
+      "ubuntu-latest / 3.10",
+      "ubuntu-latest / 3.13"
+    ],
+    "tests_per_environment": 96
   },
   "executor_code_fingerprints": {
     "__init__.py": "2252a86ce173ee283f4051f19f54ec5915ca949f64e8dc9384dc4413dc1e36b4",
