@@ -16,3 +16,6 @@ approvals/
 *.receipt.json
 .env*
 !.env.example
+node_modules/
+*.tgz
+.npmrc

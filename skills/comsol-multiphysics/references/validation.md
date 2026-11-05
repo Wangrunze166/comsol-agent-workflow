@@ -1,6 +1,6 @@
 # 验证与报告
 
-制定验证方案时使用项目根目录的 `templates/verification-plan.template.md`，明确每项额外计算的验收阈值与审批范围。
+制定验证方案时使用资源根目录的 `templates/verification-plan.template.md`，明确每项额外计算的验收阈值与审批范围。npm 用户用 `comsol-workflow --package-root` 定位该目录。
 
 ## 分层结论
 

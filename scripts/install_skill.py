@@ -13,4 +13,6 @@ destination = args.project.resolve() / client_dir / "skills/comsol-multiphysics"
 if destination.exists():
     parser.error(f"Destination already exists; review/update it manually: {destination}")
 shutil.copytree(repo / "skills/comsol-multiphysics", destination)
-print(f"Copied skill to {destination}. Use the original workflow repository as the command working directory: {repo}")
+print(f"Copied skill to {destination}. Workflow resources: {repo}. "
+      "With npm, run comsol-workflow from your case workspace; "
+      "with a source checkout, run python -m comsol_workflow from the repository.")

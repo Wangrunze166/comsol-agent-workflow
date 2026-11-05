@@ -49,3 +49,33 @@ git push origin v0.2.0
 - 平台／COMSOL 版本、复现命令、未验证项目和迁移说明：旧手填收据不能用于 v0.2，必须重新计划并签名。
 
 发布后核验公开 README、图示、下载内容、标签提交和 CI 链接；保留旧版本可追溯性。发行包不附客户模型、许可证、私钥或原始私人日志。
+
+## npm 官方注册表发布
+
+npm 包名为 `comsol-agent-workflow`，首个 npm 分发版本为 **0.2.1**；随包 Python 执行器保持 **0.2.0**。这两个版本分别标识分发入口与执行器，不移动已有 GitHub `v0.2.0` 标签。安装说明见 [npm 使用文档](npm.md)。
+
+先审阅 `package.json` 的正向文件清单和实际打包结果，确认没有私钥、审批收据、机器配置、客户模型或未脱敏日志。运行离线测试和 npm 包测试，再把真实 tarball 安装到独立目录，验证帮助、案例初始化、合成数据比较、Skill 安装与失败退出码。
+
+```console
+npm test
+npm pack --dry-run --json
+npm pack
+npm publish ./comsol-agent-workflow-0.2.1.tgz --dry-run --access public --registry=https://registry.npmjs.org/
+```
+
+维护者在浏览器完成 npm 官方登录及要求的验证；密码、令牌和验证码不进入仓库、聊天或发布记录。确认登录身份和包名归属后，发布已检查的同一个 tarball：
+
+```console
+npm login --auth-type=web --registry=https://registry.npmjs.org/
+npm whoami --registry=https://registry.npmjs.org/
+npm publish ./comsol-agent-workflow-0.2.1.tgz --access public --registry=https://registry.npmjs.org/
+```
+
+发布后从官方注册表重新读取版本和完整性信息，在新的测试目录从注册表安装该准确版本并调用 CLI。保存发布时间、发布账号、源码提交、包清单、tarball 哈希及安装验证结果；这些是分发证据，不替代 COMSOL 求解记录。
+
+```console
+npm view comsol-agent-workflow@0.2.1 version dist.integrity dist.tarball --registry=https://registry.npmjs.org/
+npx --registry=https://registry.npmjs.org/ comsol-agent-workflow@0.2.1 --version
+```
+
+只有注册表读回与安装验证完成后才记录“已发布”。已发布版本不覆盖，后续修改使用新版本号。账号登录或发布验证尚未完成时，明确报告已准备的安装包和缺失步骤。

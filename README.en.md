@@ -1,6 +1,6 @@
 # COMSOL Agent Workflow
 
-![COMSOL Agent Workflow — reviewed models, human approval, reproducible runs](assets/hero.svg)
+![COMSOL Agent Workflow — reviewed models, human approval, reproducible runs](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/hero.svg)
 
 [![Offline checks](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml/badge.svg)](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-087e8b.svg)](LICENSE)
@@ -31,7 +31,7 @@ The approval boundary depends on a **user-controlled signing key, protected trus
 
 ## Architecture
 
-![Workflow from model sources through review and approval to execution evidence](assets/workflow.svg)
+![Workflow from model sources through review and approval to execution evidence](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/workflow.svg)
 
 | Layer | Responsibility | Entry point |
 | --- | --- | --- |
@@ -42,6 +42,27 @@ The approval boundary depends on a **user-controlled signing key, protected trus
 Changed inputs or execution code require a new plan and signatures. Solver completion remains separate from mesh independence, conservation and experimental validation.
 
 ## Quick start
+
+### npm / npx
+
+Requires **Node.js 22+ and Python 3.10+**. The npm package includes a CLI launcher, shared Skill, templates and public examples; it invokes the local Python executor.
+
+```console
+npx comsol-agent-workflow@0.2.1 --help
+npx comsol-agent-workflow@0.2.1 init ./my-case
+```
+
+`init` creates a case template that needs engineering inputs; it does not start COMSOL. For a persistent command:
+
+```console
+npm install --global comsol-agent-workflow@0.2.1
+comsol-workflow --version
+comsol-workflow install-skill --client codex --project .
+```
+
+`--client` also accepts `claude` and `cursor`. Run `comsol-workflow --package-root` to locate bundled documentation and examples. See the [npm guide](docs/npm.md) for Python selection and signing dependencies. Installation does not install Python or COMSOL or start a solve. This npm distribution retains the v0.2 executor; previous native solve evidence is distinct from package validation.
+
+### From source
 
 Offline planning and CSV comparison require Python 3.10+. Signed approvals use the optional `cryptography` dependency.
 
@@ -68,7 +89,7 @@ Real execution requires Windows, COMSOL 6.3, valid module licenses, a reviewed m
 
 [minimal-heat-plate](examples/minimal-heat-plate/README.md) contains a readable Java builder and case manifest: a 10 × 5 mm 2D rectangle, 293.15 K on the left, 303.15 K on the right, insulated top/bottom and no internal source. Its analytic mean temperature is **298.15 K**.
 
-![Steady heat-plate temperature field exported by the local COMSOL run, 293.15 K on the left and 303.15 K on the right](assets/minimal-heat-plate-temperature.png)
+![Steady heat-plate temperature field exported by the local COMSOL run, 293.15 K on the left and 303.15 K on the right](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/minimal-heat-plate-temperature.png)
 
 *Actual 1600 × 1000 PNG exported by COMSOL 6.3.0.290: 293.15 K at the left boundary and 303.15 K at the right. This is the heat-plate result, not evidence of multiphysics validation.*
 
@@ -78,7 +99,7 @@ Preflight inspection took **32.711377 s** and the execution stage **36.913876 s*
 
 ## Engineering reference: thermoelectric PI control
 
-![Original conceptual thermoelectric assembly and staged airflow, thermal and PI control](assets/thermoelectric-case.svg)
+![Original conceptual thermoelectric assembly and staged airflow, thermal and PI control](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/thermoelectric-case.svg)
 
 The retained manifests follow [COMSOL Application ID 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421): a 7-point stationary current sweep and 31 transient output times over 60 minutes. Airflow is solved first, then held fixed for the thermal calculation. Zero derivative gain makes this configuration **PI control**.
 
