@@ -86,6 +86,9 @@ test('the packed npm artifact works from an isolated installed location', { time
 
     await t.test('installed version, resource location, and command help are available', () => {
       assert.equal(succeeded(cli(['--version'])).trim(), metadata.version);
+      assert.equal(succeeded(npm([
+        'exec', '--offline', '--prefix', install, '--', 'comsol-workflow', '--version',
+      ], caller)).trim(), metadata.version, 'The actual npm executable shim must work');
       sameFile(succeeded(cli(['--package-root'])).trim(), installed);
       const help = succeeded(cli(['--help']));
       assert.match(help, /install-skill/);
