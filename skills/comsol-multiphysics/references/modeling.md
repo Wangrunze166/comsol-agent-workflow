@@ -1,6 +1,6 @@
 # 输入与建模
 
-填写 JSON 时读项目根目录的 `docs/case-format.md`；新建或修改模型时复制 `templates/model-configuration.template.md` 记录证据。相对路径以原始工作流仓库为基准。
+填写 JSON 时读资源根目录的 `docs/case-format.md`；新建或修改模型时复制 `templates/model-configuration.template.md` 记录证据。资源根目录为源码仓库，或 `comsol-workflow --package-root` 输出的 npm 包目录。
 
 ## 证据分层
 

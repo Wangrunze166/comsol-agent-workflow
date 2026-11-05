@@ -5,7 +5,7 @@ description: Prepare, review, run, and validate a COMSOL multiphysics simulation
 
 # COMSOL 多物理场工程工作流
 
-从用户提供的工程证据建立可复现案例，再调用版本专属执行器。此 Skill 负责工程判断与交付；`comsol_workflow` 负责确定性检查、审批绑定和 COMSOL 6.3 执行。以仓库根目录为工作目录。
+从用户提供的工程证据建立可复现案例，再调用版本专属执行器。此 Skill 负责工程判断与交付；`comsol_workflow` 负责确定性检查、审批绑定和 COMSOL 6.3 执行。源码方式以仓库根目录为工作目录，运行 `python -m comsol_workflow`；npm 方式在用户案例目录运行 `comsol-workflow`，用 `comsol-workflow --package-root` 定位包内文档、模板和示例。不要把案例或签名写进安装包目录。
 
 1. **恢复证据。** 先读当前项目、用户指定文件和既有报告，区分原始输入、保存解与本次计算。缺少关键模型信息时，只问一个最能消除歧义的问题；其余未确认项写入待办。读 [输入与建模](references/modeling.md)，产出带来源的案例配置。完成条件：每个物理场、几何、材料、边界、研究和输出要求有来源或明确的未确认状态。
 2. **确认工程假设。** 将简化、耦合方向、材料适用范围、边界解释、验证标准列成可审核清单，生成只读执行计划。请用户确认具体假设；仅在人类确认后记录 assumptions 审批。模型或配置改变后重新计划和确认。
@@ -15,4 +15,4 @@ description: Prepare, review, run, and validate a COMSOL multiphysics simulation
 
 依据来源和当前证据作结论：未运行的模型保持未运行；软件成功退出不等于物理模型正确。重试、自动调参和扩大计算范围均需与现有批准范围一致；改变工程假设、求解配置或验证阈值时重新审核。
 
-仓库使用、安装与版本适配见仓库根目录的 `README.md`；公共示例的出处和演示边界见 `docs/demonstration.md`。这些路径相对于项目工作目录，Skill 的 `references/` 路径相对于此文件。
+仓库使用、安装与版本适配见资源根目录的 `README.md`；公共示例的出处和演示边界见 `docs/demonstration.md`。引用中的文档、模板路径均相对于上述仓库或 npm 包的资源根目录，Skill 的 `references/` 路径相对于此文件。命令行相对路径仍以调用者工作目录为准，案例内部路径按案例格式解析。

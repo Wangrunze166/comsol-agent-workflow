@@ -1,6 +1,6 @@
 # COMSOL Agent Workflow
 
-![COMSOL Agent Workflow：从经审阅模型到可复现运行](assets/hero.svg)
+![COMSOL Agent Workflow：从经审阅模型到可复现运行](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/hero.svg)
 
 [![Offline checks](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml/badge.svg)](https://github.com/Wangrunze166/comsol-agent-workflow/actions/workflows/check.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-087e8b.svg)](LICENSE)
@@ -31,7 +31,7 @@
 
 ## 架构
 
-![六个阶段：模型来源、计划检查、工程确认、求解审批、COMSOL执行、验证报告](assets/workflow.svg)
+![六个阶段：模型来源、计划检查、工程确认、求解审批、COMSOL执行、验证报告](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/workflow.svg)
 
 | 层次 | 职责 | 入口 |
 | --- | --- | --- |
@@ -42,6 +42,27 @@
 模型或执行代码变化后重新生成计划和签名。求解完成后，守恒、网格、时间步和实验一致性仍需分别验证。
 
 ## 快速开始
+
+### npm / npx
+
+需要 **Node.js 22+ 和 Python 3.10+**。npm 包提供命令入口、共享 Skill、模板和公开示例，并调用本机 Python 执行器。
+
+```console
+npx comsol-agent-workflow@0.2.1 --help
+npx comsol-agent-workflow@0.2.1 init ./my-case
+```
+
+`init` 生成待补充工程输入的案例模板，不启动 COMSOL。固定安装后可直接使用命令：
+
+```console
+npm install --global comsol-agent-workflow@0.2.1
+comsol-workflow --version
+comsol-workflow install-skill --client codex --project .
+```
+
+`--client` 支持 `codex`、`claude`、`cursor`。使用 `comsol-workflow --package-root` 定位随包文档和示例；签名依赖、Python 环境选择及完整用法见 [npm 安装说明](docs/npm.md)。安装不会自动安装 Python、COMSOL 或启动求解。此 npm 发行沿用 v0.2 执行器；已有真实求解证据与本次打包验证分别记录。
+
+### 从源码使用
 
 离线规划和 CSV 比较只需 Python 3.10+；签名审批使用可选的 `cryptography` 依赖。
 
@@ -68,7 +89,7 @@ python -m unittest discover -s tests -v
 
 [minimal-heat-plate](examples/minimal-heat-plate/README.md) 提供 Java 建模器和案例配置：10 × 5 mm 二维板，左侧 293.15 K、右侧 303.15 K，上下绝热，无内热源。解析平均温度为 **298.15 K**。
 
-![本机 COMSOL 导出的稳态导热板温度场，左侧293.15 K、右侧303.15 K](assets/minimal-heat-plate-temperature.png)
+![本机 COMSOL 导出的稳态导热板温度场，左侧293.15 K、右侧303.15 K](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/minimal-heat-plate-temperature.png)
 
 *本机 COMSOL 6.3.0.290 实际求解并导出的 1600 × 1000 PNG：左侧 293.15 K，右侧 303.15 K。此图是本例温度场，不是多物理场验证结果。*
 
@@ -78,7 +99,7 @@ python -m unittest discover -s tests -v
 
 ## 工程参考案例：热电模块与 PI 控制
 
-![热电案例概念示意：稳态流场、热网络与PI反馈](assets/thermoelectric-case.svg)
+![热电案例概念示意：稳态流场、热网络与PI反馈](https://raw.githubusercontent.com/Wangrunze166/comsol-agent-workflow/v0.2.0/assets/thermoelectric-case.svg)
 
 保留 [COMSOL 官方案例 102421](https://www.comsol.com/model/lumped-thermoelectric-module-with-pid-control-102421) 的两个复现清单：稳态 0.5–3.5 A 电流扫描，共 7 点；瞬态 0–60 min 温控，共 31 个输出时刻。该配置先求稳态流场，再固定流场计算热学；微分增益为零，实际采用 PI 控制。
 

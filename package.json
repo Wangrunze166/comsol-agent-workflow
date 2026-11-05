@@ -1,0 +1,57 @@
+{
+  "name": "comsol-agent-workflow",
+  "version": "0.2.1",
+  "description": "COMSOL 6.3 engineering Agent Skill and Python CLI for Codex, Claude Code and Cursor, with signed human approval",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "comsol-workflow": "bin/comsol-workflow.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "bin/*.mjs",
+    "comsol_workflow/*.py",
+    "comsol_workflow/case.template.json",
+    "skills/**/*.md",
+    "templates/*.md",
+    "docs/*.md",
+    "docs/*.json",
+    "adapters/**/*.md",
+    "examples/**/*.md",
+    "examples/**/*.json",
+    "examples/**/*.java",
+    "examples/**/*.csv",
+    "examples/**/*.txt",
+    "examples/**/completed.ok",
+    "assets/*.svg",
+    "assets/*.png",
+    "assets/*.md",
+    "scripts/install_skill.py",
+    "scripts/human-review.ps1",
+    ".cursor/rules/comsol-workflow.mdc",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "README.en.md",
+    "pyproject.toml"
+  ],
+  "scripts": {
+    "test": "node --test tests/npm.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wangrunze166/comsol-agent-workflow.git"
+  },
+  "homepage": "https://github.com/Wangrunze166/comsol-agent-workflow#readme",
+  "bugs": {
+    "url": "https://github.com/Wangrunze166/comsol-agent-workflow/issues"
+  },
+  "keywords": ["comsol", "simulation", "multiphysics", "agent-skills", "codex", "claude-code", "cursor", "engineering"],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}
