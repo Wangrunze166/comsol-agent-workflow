@@ -60,18 +60,20 @@ npm 包名为 `comsol-agent-workflow`，首个 npm 分发版本为 **0.2.1**；�
 npm test
 npm pack --dry-run --json
 npm pack
-npm publish ./comsol-agent-workflow-0.2.1.tgz --dry-run --access public --registry=https://registry.npmjs.org/
+npm publish . --dry-run --access public --registry=https://registry.npmjs.org/
 ```
 
-维护者在浏览器完成 npm 官方登录及要求的验证；密码、令牌和验证码不进入仓库、聊天或发布记录。确认登录身份和包名归属后，发布已检查的同一个 tarball：
+维护者在浏览器完成 npm 官方登录及要求的验证；密码、令牌和验证码不进入仓库、聊天或发布记录。确认登录身份和包名归属后，从已审阅项目根目录发布。发布前保持源码与打包时一致，不添加会改变包内容的生命周期钩子；后续版本先更新版本号，不能再次发布 0.2.1：
 
 ```console
 npm login --auth-type=web --registry=https://registry.npmjs.org/
 npm whoami --registry=https://registry.npmjs.org/
-npm publish ./comsol-agent-workflow-0.2.1.tgz --access public --registry=https://registry.npmjs.org/
+npm publish . --access public --registry=https://registry.npmjs.org/
 ```
 
-发布后从官方注册表重新读取版本和完整性信息，在新的测试目录从注册表安装该准确版本并调用 CLI。保存发布时间、发布账号、源码提交、包清单、tarball 哈希及安装验证结果；这些是分发证据，不替代 COMSOL 求解记录。
+发布后从官方注册表重新读取版本和完整性信息，在新的测试目录从注册表安装该准确版本并调用 CLI。下载公开 tarball，逐字节比对发布前已检查的包。保存发布时间、发布账号、源码提交、包清单、tarball 哈希及安装验证结果；这些是分发证据，不替代 COMSOL 求解记录。
+
+本机 npm 11.16.0 在直接发布 `.tgz` 时，会把本机路径写入 `_resolved`，并可能从缓存的外层仓库推导错误的 `gitHead`。因此后续采用上述目录发布流程，仍检查实际返回的元数据，不单独依赖自动 `gitHead`。0.2.1 的已公开元数据保留原状，准确来源和校验见[首版发布记录](npm-release-0.2.1.md)。
 
 ```console
 npm view comsol-agent-workflow@0.2.1 version dist.integrity dist.tarball --registry=https://registry.npmjs.org/
