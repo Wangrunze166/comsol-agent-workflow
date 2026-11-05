@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,17 @@ function run(executable, args, options = {}) {
 function succeeded(result) {
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
   return result.stdout;
+}
+
+function sameFile(actual, expected) {
+  // Windows' short and long path spellings can differ between Node and Python.
+  // Compare the underlying filesystem object, not a spelling of its pathname.
+  const actualStat = statSync(actual, { bigint: true });
+  const expectedStat = statSync(expected, { bigint: true });
+  assert.deepEqual(
+    [actualStat.dev, actualStat.ino], [expectedStat.dev, expectedStat.ino],
+    `Expected the same filesystem object: ${actual} and ${expected}`,
+  );
 }
 
 test('the packed npm artifact works from an isolated installed location', { timeout: 240000 }, async (t) => {
@@ -75,7 +86,7 @@ test('the packed npm artifact works from an isolated installed location', { time
 
     await t.test('installed version, resource location, and command help are available', () => {
       assert.equal(succeeded(cli(['--version'])).trim(), metadata.version);
-      assert.equal(realpathSync(succeeded(cli(['--package-root'])).trim()), realpathSync(installed));
+      sameFile(succeeded(cli(['--package-root'])).trim(), installed);
       const help = succeeded(cli(['--help']));
       assert.match(help, /install-skill/);
       assert.match(help, /approval-keygen/);
@@ -92,9 +103,12 @@ test('the packed npm artifact works from an isolated installed location', { time
       }
       const result = cli(['init', '新建 case'], { env: { ...process.env, PYTHONPATH: hostile } });
       const created = JSON.parse(succeeded(result));
-      assert.equal(realpathSync(created.case), realpathSync(join(caller, '新建 case', 'case.json')));
+      sameFile(created.case, join(caller, '新建 case', 'case.json'));
       assert.equal(created.status, 'needs_engineering_input');
-      assert.deepEqual(readFileSync(created.case), readFileSync(join(installed, 'comsol_workflow', 'case.template.json')));
+      assert.deepEqual(
+        JSON.parse(readFileSync(created.case, 'utf8')),
+        JSON.parse(readFileSync(join(installed, 'comsol_workflow', 'case.template.json'), 'utf8')),
+      );
       assert.equal(cli(['init', '新建 case']).status, 2, 'Existing user cases must not be overwritten');
       assert.ok(!existsSync(join(installed, 'comsol_workflow', '__pycache__')), 'Execution should not mutate the installed code directory');
     });
@@ -117,7 +131,7 @@ test('the packed npm artifact works from an isolated installed location', { time
       assert.equal(result.status, 'not_executed');
       assert.equal(result.checks.valid, false, 'Missing licensed model and installation must remain blocking');
       const runDirectory = join(caller, '审阅 plan');
-      assert.equal(realpathSync(result.run_dir), realpathSync(runDirectory));
+      sameFile(result.run_dir, runDirectory);
       assert.match(readFileSync(join(runDirectory, 'REVIEW.md'), 'utf8'), /has not launched COMSOL/);
       const plan = JSON.parse(readFileSync(join(runDirectory, 'plan.json'), 'utf8'));
       assert.equal(plan.toolchain, null);
